@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding=UTF-8
 
-from nest import Nest
 from sys import stdout
+import nest as nestlib
 import alfred
 import os.path
 import os
@@ -19,7 +19,7 @@ def _get_nest():
         os.mkdir(alfred.cache_dir)
         if not os.access(alfred.cache_dir, os.W_OK):
             raise IOError('No write access to dir: %s' % alfred.cache_dir)
-    nest = Nest(cache_dir=alfred.cache_dir)
+    nest = nestlib.Nest(cache_dir=alfred.cache_dir)
 
     if not nest.has_session:
         alfred.show_message('First things first...', 'Before you can use this '
@@ -90,18 +90,48 @@ def tell_status(nest, ignore):
     target = nest.target_temperature
     humidity = nest.humidity
     away = 'yes' if nest.away else 'no'
-    leaf = 'yes' if nest.leaf else 'no'
+    fan = nest.fan
     mode = nest.mode.lower()
     units = nest.scale.upper()
     item = alfred.Item('status', u'Temperature: {:.1f}°{}'.format(temp,
                        units))
 
     item.subtitle = u'Target: {:.1f}°{}    Humidity: {:.1f}%    ' \
-                    'Mode: {}    Away: {}    Leaf: {}'.format(target, units,
-                                                              humidity,
-                                                              mode, away,
-                                                              leaf)
+                    'Mode: {}    Fan: {}    Away: {}'.format(target, units,
+                                                             humidity,
+                                                             mode, fan, away)
     return [item]
+
+
+def tell_fan(nest, ignore):
+    '''Tell the Nest's fan mode'''
+
+    subtitle = 'Press enter to switch '
+
+    if nest.fan == 'auto':
+        msg = 'Fan is in auto mode'
+        subtitle += 'on'
+        arg = 'on'
+    else:
+        msg = 'Fan is on'
+        subtitle += 'to auto mode'
+        arg = 'auto'
+
+    item = alfred.Item('fan', msg, valid=True, arg=arg, subtitle=subtitle)
+    return [item]
+
+
+def do_fan(nest, mode):
+    '''Set the Nest's fan mode'''
+    if mode not in ('on', 'auto'):
+        raise Exception('Invalid input')
+
+    nest.fan = mode
+
+    if nest.fan == 'auto':
+        print 'Fan is in auto mode'
+    else:
+        print 'Fan is on'
 
 
 def tell_away(nest, ignore):
@@ -186,6 +216,8 @@ def tell(name, query=''):
             items = globals()[cmd](nest, query)
         else:
             items = [alfred.Item('tell', 'Invalid action "{}"'.format(name))]
+    except nestlib.FailedRequest, e:
+        items = [alfred.Item(None, 'Request failed: {}'.format(e.response))]
     except Exception, e:
         items = [alfred.Item(None, 'Error: {}'.format(e))]
 
@@ -203,12 +235,11 @@ def do(name, query=''):
             globals()[cmd](nest, query)
         else:
             _out('Invalid command "{}"'.format(name))
+    except nestlib.FailedRequest, e:
+        _out('Request failed: {}'.format(e.response))
     except Exception, e:
         _out('Error: {}'.format(e))
 
 
 if __name__ == '__main__':
-    nest = _get_nest()
-    if nest is not None:
-        from pprint import pprint
-        pprint(nest.status)
+    tell('fan')

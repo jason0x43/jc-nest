@@ -12,6 +12,12 @@ login_url = 'https://home.nest.com/user/login'
 user_agent = 'Nest/1.1.0.10 CFNetwork/548.0.4'
 
 
+class FailedRequest(Exception):
+    def __init__(self, message, response):
+        super(FailedRequest, self).__init__(message)
+        self.response = response
+
+
 class NotAuthenticated(Exception):
     def __init__(self, message):
         super(NotAuthenticated, self).__init__(message)
@@ -32,8 +38,8 @@ class Nest(object):
     @property
     def status(self):
         if self._status is None:
-            self._status = self._request('GET',
-                                         'mobile/user.{}'.format(self.user_id))
+            r = self._request('GET', 'mobile/user.{}'.format(self.user_id))
+            self._status = r.json()
         return self._status
 
     @property
@@ -100,9 +106,25 @@ class Nest(object):
             'away_setter': 0
         }
         self._request('POST', 'put/structure.{}'.format(self.structure_id),
-                      data=data, expect_response=False)
+                      data=data)
+        self.status['structure'][self.structure_id]['away'] = value
 
     away = property(_get_away, _set_away)
+
+    # fan mode ###########################
+
+    def _get_fan(self):
+        return self.status['device'][self.device_id]['fan_mode']
+
+    def _set_fan(self, mode):
+        if mode not in ('auto', 'on'):
+            raise Exception('Invalid fan mode "{}". Must be "auto" or '
+                            '"on"'.format(mode))
+        data = {'device': {self.device_id: {'fan_mode': mode}}}
+        self._request('POST', 'put', data=data)
+        self.status['device'][self.device_id]['fan_mode'] = mode
+
+    fan = property(_get_fan, _set_fan)
 
     # target temp ########################
 
@@ -121,7 +143,11 @@ class Nest(object):
             'target_temperature': temp
         }
         self._request('POST', 'put/shared.{}'.format(self.device_id),
-                      data=data, expect_response=False)
+                      data=data)
+
+        if self.scale == 'F':
+            temp = (temp - 32) / 1.8
+        self.status['shared'][self.device_id]['target_temperature'] = temp
 
     target_temperature = property(_get_target_temperature,
                                   _set_target_temperature)
@@ -179,7 +205,7 @@ class Nest(object):
 
         return True
 
-    def _request(self, method='GET', path='', data=None, expect_response=True):
+    def _request(self, method='GET', path='', data=None):
         '''
         GET from or POST to a user's Nest account
 
@@ -223,8 +249,10 @@ class Nest(object):
         else:
             raise Exception('Invalid method "{}"'.format(method))
 
-        if expect_response:
-            return r.json()
+        if r.status_code != 200:
+            raise FailedRequest('Request failed', r)
+
+        return r
 
 
 if __name__ == '__main__':
