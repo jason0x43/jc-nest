@@ -1,6 +1,8 @@
 [Alfred 2][alfred] Workflow for controlling a [Nest][nest]
 ==========================================================
 
+![Screenshot](http://i.imgur.com/fB8j7is.png)
+
 This workflow lets you control the basic features of a Nest thermostat. It
 provides several commands, accessible via `nest [command]`:
 
