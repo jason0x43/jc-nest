@@ -48,7 +48,7 @@ command history.
 [Nokipore's alfred-python][nokipore] package showed me a cleaner way to
 structure my Alfred interface code.
 
-[package]: http://jason0x43.github.s3.amazonaws.com/jc-nest.alfredworkflow
+[package]: https://www.dropbox.com/s/qmu1iyora9h6pr9/jc-nest.alfredworkflow
 [nest]: http://www.nest.com
 [alfred]: http://www.alfredapp.com
 [gharlan]: https://github.com/gharlan/alfred-github-workflow
