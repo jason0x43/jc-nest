@@ -12,6 +12,7 @@ provides several commands, accessible via `nest [command]`:
   * `target [temp]` - get and set the target temperature
   * `away` - show and toggle away mode
   * `weather` - show local weather (according to the Nest servers)
+  * `fan` - show and toggle fan mode
 
 Your location (for weather) and your temperature scale preference are read from
 your Nest account.
