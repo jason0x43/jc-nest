@@ -2,17 +2,23 @@
 ==========================================================
 
 <p align="center">
-<img alt="Screenshot" src="http://i.imgur.com/fB8j7is.png" />
+<img alt="Screenshot" src="http://dl.dropbox.com/s/znojcyqezs3amcq/jc-nest_screenshot.png" />
+</p>
+
+<p align="center">
+  <a href="http://dl.dropbox.com/s/qmu1iyora9h6pr9/jc-nest.alfredworkflow"><img
+    src="http://dl.dropbox.com/s/m823ene4il9cnac/dl_button.png" alt="Download"></a>
 </p>
 
 This workflow lets you control the basic features of a Nest thermostat. It
 provides several commands, accessible via `nest [command]`:
 
-  * `status` - show general Nest status
-  * `target [temp]` - get and set the target temperature
   * `away` - show and toggle away mode
+  * `fan` - show and toggle the fan mode
+  * `mode` - show and toggle the heat/cool mode (heat, cool, or heat/cool)
+  * `status` - show general Nest status
+  * `target` - get and set the target temperature or temperature range
   * `weather` - show local weather (according to the Nest servers)
-  * `fan` - show and toggle fan mode
 
 Your location (for weather) and your temperature scale preference are read from
 your Nest account.
@@ -53,8 +59,8 @@ command history.
 [Nokipore's alfred-python][nokipore] package showed me a cleaner way to
 structure my Alfred interface code.
 
-[package]: https://www.dropbox.com/s/qmu1iyora9h6pr9/jc-nest.alfredworkflow
+[package]: http://dl.dropbox.com/s/qmu1iyora9h6pr9/jc-nest.alfredworkflow
 [nest]: http://www.nest.com
 [alfred]: http://www.alfredapp.com
-[gharlan]: https://github.com/gharlan/alfred-github-workflow
-[nokipore]: https://github.com/nikipore/alfred-python
+[gharlan]: http://github.com/gharlan/alfred-github-workflow
+[nokipore]: http://github.com/nikipore/alfred-python
