@@ -8,6 +8,16 @@ import os.path
 import os
 
 
+MODES = {
+    'heat': {'label': 'Heat', 'desc': 'Heat to a certain temperature'},
+    'cool': {'label': 'Cool', 'desc': 'Cool to a certain temperature'},
+    'range': {'label': 'Heat/cool', 'desc': 'Heat to a minimum temperature '
+              'and cool to a maximum temperature'}
+}
+
+show_exceptions = False
+
+
 def _out(msg):
     '''Output a string'''
     stdout.write(msg.encode('utf-8'))
@@ -56,20 +66,38 @@ def _get_nest():
 
 def tell_target(nest, temp):
     '''Tell the target temperature'''
-    if len(temp) == 1 or len(temp) > 2:
-        return [alfred.Item('target', 'Waiting for valid input...')]
-
     target = nest.target_temperature
-    units = nest.scale.upper()
-    item = alfred.Item('target', u'Target temperature: {:.1f}°{}'.format(
-                       target, units))
+    temp = temp.strip()
+    temp = temp.strip('"')
+    temp = temp.strip("'")
 
-    if len(temp) == 2:
+    if nest.mode == 'range' and len(temp) > 0:
+        temps = temp.split()
+        if len(temps) != 2:
+            return [alfred.Item('Waiting for valid input...')]
+        for t in temps:
+            if len(t) == 1 or len(t) > 2:
+                return [alfred.Item('Waiting for valid input...')]
+
+    units = nest.scale.upper()
+
+    if nest.mode == 'range':
+        item = alfred.Item(u'Target temperature range is {lo:.1f}°{units} - '
+                           u'{hi:.1f}°{units}'.format(lo=target[0],
+                                                      hi=target[1],
+                                                      units=units))
+    else:
+        item = alfred.Item(u'Target temperature: {:.1f}°{}'.format(target, units))
+
+    if len(temp) > 0:
+        # only need to check for empty temp here since we already validated it
+        # above
         item.valid = True
         item.arg = temp
 
-    if len(temp) == 2:
-        item.subtitle = u'Press Enter to update'
+    if nest.mode == 'range':
+        item.subtitle = u'Enter a temperature range in °{} to update; ' \
+                        u'use format "low high"'.format(units)
     else:
         item.subtitle = u'Enter a temperature in °{} to update'.format(units)
 
@@ -78,10 +106,18 @@ def tell_target(nest, temp):
 
 def do_target(nest, temp):
     '''Set the target temperature'''
-    temp = float(temp)
+    temp = temp.strip()
+    if ' ' in temp:
+        temp = temp.split()
     nest.target_temperature = temp
-    _out(u'Target temperature set to {:.1f}°{}'.format(
-         temp, nest.scale.upper()))
+
+    if isinstance(temp, list):
+        _out(u'Target temperature range is now {lo}°{units} - '
+             u'{hi}°{units}'.format(lo=temp[0], hi=temp[1],
+                                    units=nest.scale.upper()))
+    else:
+        _out(u'Target temperature set to {}°{}'.format(temp,
+             nest.scale.upper()))
 
 
 def tell_status(nest, ignore):
@@ -91,15 +127,20 @@ def tell_status(nest, ignore):
     humidity = nest.humidity
     away = 'yes' if nest.away else 'no'
     fan = nest.fan
-    mode = nest.mode.lower()
     units = nest.scale.upper()
-    item = alfred.Item('status', u'Temperature: {:.1f}°{}'.format(temp,
-                       units))
+    item = alfred.Item(u'Temperature: {:.1f}°{}'.format(temp, units))
 
-    item.subtitle = u'Target: {:.1f}°{}    Humidity: {:.1f}%    ' \
-                    'Mode: {}    Fan: {}    Away: {}'.format(target, units,
-                                                             humidity,
-                                                             mode, fan, away)
+    if nest.mode == 'range':
+        target = u'Heat/cool to {l:.1f}°{u} - {h:.1f}°{u}'.format(l=target[0],
+                                                                  h=target[1],
+                                                                  u=units)
+    elif nest.mode == 'heat':
+        target = u'Heating to {:.1f}°{}'.format(target, units)
+    else:
+        target = u'Cooling to {:.1f}°{}'.format(target, units)
+
+    item.subtitle = u'{}    Humidity: {:.1f}%    Fan: {}    Away: {}'.format(
+        target, humidity, fan, away)
     return [item]
 
 
@@ -117,7 +158,7 @@ def tell_fan(nest, ignore):
         subtitle += 'to auto mode'
         arg = 'auto'
 
-    item = alfred.Item('fan', msg, valid=True, arg=arg, subtitle=subtitle)
+    item = alfred.Item(msg, valid=True, arg=arg, subtitle=subtitle)
     return [item]
 
 
@@ -129,9 +170,9 @@ def do_fan(nest, mode):
     nest.fan = mode
 
     if nest.fan == 'auto':
-        print 'Fan is in auto mode'
+        _out('Fan is in auto mode')
     else:
-        print 'Fan is on'
+        _out('Fan is on')
 
 
 def tell_away(nest, ignore):
@@ -144,7 +185,7 @@ def tell_away(nest, ignore):
         msg = "Nest thinks you're at home"
         arg = 'on'
 
-    item = alfred.Item('away', msg, valid=True, arg=arg,
+    item = alfred.Item(msg, valid=True, arg=arg,
                        subtitle='Press enter to toggle')
     return [item]
 
@@ -168,9 +209,9 @@ def do_away(nest, val):
         away = nest.away
 
     if away:
-        print 'Away mode is enabled'
+        _out('Away mode is enabled')
     else:
-        print 'Away mode is disabled'
+        _out('Away mode is disabled')
 
 
 def tell_weather(nest, ignored):
@@ -182,9 +223,8 @@ def tell_weather(nest, ignored):
         tcond = info['conditions']
         thi = info['high_temperature']
         tlo = info['low_temperature']
-        item = alfred.Item('weather{}'.format(info['date']), title)
-        item.subtitle = u'{}, High: {:.1f}°F, Low: {:.1f}°F'.format(
-            tcond, thi, tlo)
+        item = alfred.Item(title, subtitle=u'{}, High: {:.1f}°F, '
+                           u'Low: {:.1f}°F'.format(tcond, thi, tlo))
         return item
 
     data = nest.weather
@@ -194,7 +234,7 @@ def tell_weather(nest, ignored):
 
     items = []
 
-    item = alfred.Item('weather0', 'Now')
+    item = alfred.Item('Now')
     item.subtitle = u'{}, {:.1f}°F, {:.1f}% humidity'.format(
         conditions, temp, humidity)
     items.append(item)
@@ -203,6 +243,29 @@ def tell_weather(nest, ignored):
     items.append(new_forecast('Tomorrow', data['forecast']['daily'][1]))
 
     return items
+
+
+def tell_mode(nest, query):
+    items = []
+
+    for mode in sorted(MODES.keys()):
+        title = MODES[mode]['label']
+        if mode == nest.mode:
+            title += ' (active)'
+        items.append(alfred.Item(title, subtitle=MODES[mode]['desc'], arg=mode,
+                                 valid=True))
+
+    if len(query.strip()) > 0:
+        q = query.strip().lower()
+        items = alfred.fuzzy_match(q, items, key=lambda i: i.title.lower())
+
+    return items
+
+
+def do_mode(nest, mode):
+    nest.mode = mode
+    label = MODES[mode]['label'].lower()
+    _out('Temperature mode set to {}'.format(label))
 
 
 def tell(name, query=''):
@@ -215,11 +278,17 @@ def tell(name, query=''):
                 return
             items = globals()[cmd](nest, query)
         else:
-            items = [alfred.Item('tell', 'Invalid action "{}"'.format(name))]
+            items = [alfred.Item('Invalid action "{}"'.format(name))]
     except nestlib.FailedRequest, e:
-        items = [alfred.Item(None, 'Request failed: {}'.format(e.response))]
+        if show_exceptions:
+            import traceback
+            traceback.print_exc()
+        items = [alfred.Item('Request failed: {}'.format(e.response))]
     except Exception, e:
-        items = [alfred.Item(None, 'Error: {}'.format(e))]
+        if show_exceptions:
+            import traceback
+            traceback.print_exc()
+        items = [alfred.Item('Error: {}'.format(e))]
 
     _out(alfred.to_xml(items))
 
@@ -236,10 +305,18 @@ def do(name, query=''):
         else:
             _out('Invalid command "{}"'.format(name))
     except nestlib.FailedRequest, e:
+        if show_exceptions:
+            import traceback
+            traceback.print_exc()
         _out('Request failed: {}'.format(e.response))
     except Exception, e:
+        if show_exceptions:
+            import traceback
+            traceback.print_exc()
         _out('Error: {}'.format(e))
 
 
 if __name__ == '__main__':
-    tell('fan')
+    show_exceptions = True
+    from sys import argv
+    globals()[argv[1]](*argv[2:])

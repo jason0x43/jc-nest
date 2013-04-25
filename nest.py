@@ -72,10 +72,6 @@ class Nest(object):
         return self.status['device'][self.device_id]['current_humidity']
 
     @property
-    def mode(self):
-        return self.status['device'][self.device_id]['current_schedule_mode']
-
-    @property
     def temperature(self):
         temp = self.status['shared'][self.device_id]['current_temperature']
         if self.scale == 'F':
@@ -91,6 +87,20 @@ class Nest(object):
         r = requests.get('https://home.nest.com/api/0.1/weather/forecast/'
                          '{}'.format(self.location))
         return r.json()
+
+    # away ###############################
+
+    def _get_mode(self):
+        mode = self.status['device'][self.device_id]['current_schedule_mode']
+        return mode.lower()
+
+    def _set_mode(self, mode):
+        mode = mode.upper()
+        data = {'device': {self.device_id: {'current_schedule_mode': mode}}}
+        self._request('POST', 'put', data=data)
+        self.status['device'][self.device_id]['current_schedule_mode'] = mode
+
+    mode = property(_get_mode, _set_mode)
 
     # away ###############################
 
@@ -129,25 +139,48 @@ class Nest(object):
     # target temp ########################
 
     def _get_target_temperature(self):
-        temp = self.status['shared'][self.device_id]['target_temperature']
-        if self.scale == 'F':
-            temp = (temp * 1.8) + 32
+        if self.mode == 'range':
+            temp = [self.status['shared'][self.device_id]['target_temperature_low'],
+                    self.status['shared'][self.device_id]['target_temperature_high']]
+            if self.scale == 'F':
+                temp = [(t * 1.8) + 32 for t in temp]
+        else:
+            temp = self.status['shared'][self.device_id]['target_temperature']
+            if self.scale == 'F':
+                temp = (temp * 1.8) + 32
         return temp
 
     def _set_target_temperature(self, temp):
-        temp = float(temp)
-        if self.scale == 'F':
-            temp = (temp - 32) / 1.8
-        data = {
-            'target_change_pending': True,
-            'target_temperature': temp
-        }
+        if isinstance(temp, (list, tuple)):
+            # temp is (low, high)
+            lo_and_hi = [float(t) for t in temp]
+            if lo_and_hi[1] - lo_and_hi[0] < 3.0:
+                raise Exception('High and low temperatures are too close')
+            if self.scale == 'F':
+                lo_and_hi = [(t - 32) / 1.8 for t in lo_and_hi]
+            data = {
+                'target_temperature_low': lo_and_hi[0],
+                'target_temperature_high': lo_and_hi[1],
+            }
+        else:
+            temp = float(temp)
+            if self.scale == 'F':
+                temp = (temp - 32) / 1.8
+            data = {
+                'target_change_pending': True,
+                'target_temperature': temp
+            }
+
         self._request('POST', 'put/shared.{}'.format(self.device_id),
                       data=data)
 
-        if self.scale == 'F':
-            temp = (temp - 32) / 1.8
-        self.status['shared'][self.device_id]['target_temperature'] = temp
+        if isinstance(temp, (list, tuple)):
+            self.status['shared'][self.device_id][
+                'target_temperature_low'] = lo_and_hi[0]
+            self.status['shared'][self.device_id][
+                'target_temperature_high'] = lo_and_hi[1]
+        else:
+            self.status['shared'][self.device_id]['target_temperature'] = temp
 
     target_temperature = property(_get_target_temperature,
                                   _set_target_temperature)

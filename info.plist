@@ -28,6 +28,28 @@
 				<string></string>
 			</dict>
 		</array>
+		<key>5837DD24-97C1-4E59-A188-68C9A623F635</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>59CD1C33-4200-4B00-BD37-9488FC26C33A</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>59CD1C33-4200-4B00-BD37-9488FC26C33A</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>9C5DEFD5-3025-4222-87AA-4BB2D9B8270A</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
 		<key>6F985B9F-17EC-4640-B981-BD578917750E</key>
 		<array>
 			<dict>
@@ -43,7 +65,7 @@
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>EB2B056B-ABB1-494C-A9A8-EF9C1F823681</string>
+				<string>9C5DEFD5-3025-4222-87AA-4BB2D9B8270A</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -65,7 +87,7 @@
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>14C71259-780E-4389-BB18-5CD9972B7535</string>
+				<string>9C5DEFD5-3025-4222-87AA-4BB2D9B8270A</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -88,33 +110,10 @@
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>lastpathcomponent</key>
-				<false/>
-				<key>onlyshowifquerypopulated</key>
-				<false/>
-				<key>output</key>
-				<integer>0</integer>
-				<key>removeextension</key>
-				<false/>
-				<key>sticky</key>
-				<false/>
-				<key>text</key>
-				<string>{query}</string>
-				<key>title</key>
-				<string>Target temperature</string>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.output.notification</string>
-			<key>uid</key>
-			<string>9C5DEFD5-3025-4222-87AA-4BB2D9B8270A</string>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
 				<key>argumenttype</key>
 				<integer>1</integer>
 				<key>escaping</key>
-				<integer>63</integer>
+				<integer>0</integer>
 				<key>keyword</key>
 				<string>nest temp</string>
 				<key>runningsubtext</key>
@@ -140,45 +139,56 @@ alfred_nest.tell('target', '{query}')</string>
 			<key>config</key>
 			<dict>
 				<key>escaping</key>
-				<integer>63</integer>
+				<integer>0</integer>
 				<key>script</key>
 				<string>import alfred_nest
-alfred_nest.do('away', '{query}')</string>
+alfred_nest.do('target', '{query}')</string>
 				<key>type</key>
 				<integer>3</integer>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
-			<string>B1CC61CB-FAA7-4831-B5A9-CEA65ACB214E</string>
+			<string>BA3DCB1F-DFD3-4364-9CEA-42D4677FF653</string>
 		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>argumenttype</key>
-				<integer>2</integer>
-				<key>escaping</key>
-				<integer>63</integer>
-				<key>keyword</key>
-				<string>nest away</string>
-				<key>runningsubtext</key>
-				<string>Talking to Nest...</string>
-				<key>script</key>
-				<string>import alfred_nest
-alfred_nest.tell('away')</string>
-				<key>subtext</key>
-				<string>Get and set your Nest's "away" status</string>
-				<key>title</key>
-				<string>away</string>
-				<key>type</key>
-				<integer>3</integer>
-				<key>withspace</key>
+				<key>lastpathcomponent</key>
 				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<false/>
+				<key>output</key>
+				<integer>0</integer>
+				<key>removeextension</key>
+				<false/>
+				<key>sticky</key>
+				<false/>
+				<key>text</key>
+				<string>{query}</string>
+				<key>title</key>
+				<string>Nest</string>
 			</dict>
 			<key>type</key>
-			<string>alfred.workflow.input.scriptfilter</string>
+			<string>alfred.workflow.output.notification</string>
 			<key>uid</key>
-			<string>6F985B9F-17EC-4640-B981-BD578917750E</string>
+			<string>9C5DEFD5-3025-4222-87AA-4BB2D9B8270A</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>script</key>
+				<string>import alfred_nest
+alfred_nest.do('fan', '{query}')</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>E8C69473-7E15-4B09-ABA0-0C77B8AAFA75</string>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -211,25 +221,30 @@ alfred_nest.tell('fan')</string>
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>lastpathcomponent</key>
-				<false/>
-				<key>onlyshowifquerypopulated</key>
-				<false/>
-				<key>output</key>
-				<integer>0</integer>
-				<key>removeextension</key>
-				<false/>
-				<key>sticky</key>
-				<false/>
-				<key>text</key>
-				<string>{query}</string>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
+				<string>nest away</string>
+				<key>runningsubtext</key>
+				<string>Talking to Nest...</string>
+				<key>script</key>
+				<string>import alfred_nest
+alfred_nest.tell('away')</string>
+				<key>subtext</key>
+				<string>Get and set your Nest's "away" status</string>
 				<key>title</key>
-				<string>Away status</string>
+				<string>away</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<false/>
 			</dict>
 			<key>type</key>
-			<string>alfred.workflow.output.notification</string>
+			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
-			<string>EB2B056B-ABB1-494C-A9A8-EF9C1F823681</string>
+			<string>6F985B9F-17EC-4640-B981-BD578917750E</string>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -238,53 +253,58 @@ alfred_nest.tell('fan')</string>
 				<integer>63</integer>
 				<key>script</key>
 				<string>import alfred_nest
-alfred_nest.do('fan', '{query}')</string>
+alfred_nest.do('away', '{query}')</string>
 				<key>type</key>
 				<integer>3</integer>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
-			<string>E8C69473-7E15-4B09-ABA0-0C77B8AAFA75</string>
+			<string>B1CC61CB-FAA7-4831-B5A9-CEA65ACB214E</string>
 		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>lastpathcomponent</key>
-				<false/>
-				<key>onlyshowifquerypopulated</key>
-				<false/>
-				<key>output</key>
-				<integer>0</integer>
-				<key>removeextension</key>
-				<false/>
-				<key>sticky</key>
-				<false/>
-				<key>text</key>
-				<string>{query}</string>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>keyword</key>
+				<string>nest mode</string>
+				<key>runningsubtext</key>
+				<string>Loading...</string>
+				<key>script</key>
+				<string>import alfred_nest
+alfred_nest.tell('mode', '{query}')</string>
+				<key>subtext</key>
+				<string>Set the heat/cool mode</string>
 				<key>title</key>
-				<string>Fan mode</string>
+				<string>mode</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
 			</dict>
 			<key>type</key>
-			<string>alfred.workflow.output.notification</string>
+			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
-			<string>14C71259-780E-4389-BB18-5CD9972B7535</string>
+			<string>5837DD24-97C1-4E59-A188-68C9A623F635</string>
 		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
 				<key>escaping</key>
-				<integer>63</integer>
+				<integer>127</integer>
 				<key>script</key>
 				<string>import alfred_nest
-alfred_nest.do('target', '{query}')</string>
+alfred_nest.do('mode', '{query}')</string>
 				<key>type</key>
 				<integer>3</integer>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
-			<string>BA3DCB1F-DFD3-4364-9CEA-42D4677FF653</string>
+			<string>59CD1C33-4200-4B00-BD37-9488FC26C33A</string>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -347,25 +367,30 @@ alfred_nest.tell('status')</string>
 	<string></string>
 	<key>uidata</key>
 	<dict>
-		<key>14C71259-780E-4389-BB18-5CD9972B7535</key>
-		<dict>
-			<key>ypos</key>
-			<real>490</real>
-		</dict>
 		<key>2ADDAEE0-1B40-4854-8D3B-F69D3BBF35C6</key>
 		<dict>
 			<key>ypos</key>
-			<real>490</real>
+			<real>130</real>
 		</dict>
 		<key>3817F473-F259-44D4-A6B9-EA1C81A4005C</key>
 		<dict>
 			<key>ypos</key>
-			<real>130</real>
+			<real>610</real>
 		</dict>
 		<key>4BA98F5A-42F1-47D1-A420-1E0ECAF7421B</key>
 		<dict>
 			<key>ypos</key>
 			<real>10</real>
+		</dict>
+		<key>5837DD24-97C1-4E59-A188-68C9A623F635</key>
+		<dict>
+			<key>ypos</key>
+			<real>370</real>
+		</dict>
+		<key>59CD1C33-4200-4B00-BD37-9488FC26C33A</key>
+		<dict>
+			<key>ypos</key>
+			<real>370</real>
 		</dict>
 		<key>6F985B9F-17EC-4640-B981-BD578917750E</key>
 		<dict>
@@ -390,17 +415,12 @@ alfred_nest.tell('status')</string>
 		<key>E8C69473-7E15-4B09-ABA0-0C77B8AAFA75</key>
 		<dict>
 			<key>ypos</key>
-			<real>490</real>
-		</dict>
-		<key>EB2B056B-ABB1-494C-A9A8-EF9C1F823681</key>
-		<dict>
-			<key>ypos</key>
-			<real>250</real>
+			<real>130</real>
 		</dict>
 		<key>FDA5BD3A-C30F-4FC1-8251-BA9CB1E97589</key>
 		<dict>
 			<key>ypos</key>
-			<real>370</real>
+			<real>490</real>
 		</dict>
 	</dict>
 	<key>webaddress</key>

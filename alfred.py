@@ -3,6 +3,7 @@
 
 import plistlib
 import os.path
+import uuid
 
 preferences = plistlib.readPlist('info.plist')
 bundleid = preferences['bundleid']
@@ -15,19 +16,22 @@ data_dir = os.path.expanduser('~/Library/Application Support/Alfred 2'
 
 class Item(object):
     '''An item in an Alfred feedback XML message'''
-    def __init__(self, uid, title, subtitle=None, icon=None, valid=False,
+    def __init__(self, title, subtitle=None, uid=None, icon=None, valid=False,
                  arg=None):
-        self.uid = uid
         self.title = title
         self.subtitle = subtitle
+        self.icon = icon if icon is not None else 'icon.png'
+        self.uid = uid
         self.valid = valid
         self.arg = arg
-        self.icon = icon if icon is not None else 'icon.png'
 
     def to_xml(self):
         attrs = []
 
-        attrs.append('uid="{}-{}"'.format(bundleid, self.uid))
+        if self.uid:
+            attrs.append(u'uid="{}-{}"'.format(bundleid, self.uid))
+        else:
+            attrs.append(u'uid="{}"'.format(uuid.uuid4()))
 
         if self.valid:
             attrs.append('valid="yes"')
@@ -50,6 +54,31 @@ class Item(object):
         return ''.join(xml)
 
 
+def fuzzy_match(test, items, key=None):
+    '''Return the subset of items that fuzzy match a string [test]'''
+    matches = []
+    for item in items:
+        if key:
+            istr = key(item)
+        else:
+            istr = item
+
+        match = True
+        start = 0
+        last_i = -1
+        for c in test:
+            i = istr.find(c, start)
+            if i == -1:
+                match = False
+                break
+            last_i = i
+            start = i + 1
+
+        if match:
+            matches.append(item)
+    return matches
+
+
 def to_xml(items):
     '''Convert a list of Items to an Alfred XML feedback message'''
     msg = [u'<?xml version="1.0"?>', u'<items>']
@@ -61,13 +90,26 @@ def to_xml(items):
     return u''.join(msg)
 
 
-def get_from_user(title, prompt, hidden=False):
+def get_from_user(title, prompt, hidden=False, value=None, extra_buttons=None):
     '''
     Popup a dialog to request some piece of information.
 
     The main use for this function is to request information that you don't
     want showing up in Alfred's command history.
     '''
+    if value is None:
+        value = ''
+
+    buttons = ['Cancel', 'Ok']
+    if extra_buttons:
+        if isinstance(extra_buttons, (list, tuple)):
+            buttons = extra_buttons + buttons
+        else:
+            buttons.insert(0, extra_buttons)
+    buttons = '{{{}}}'.format(', '.join(['"{}"'.format(b) for b in buttons]))
+
+    hidden = 'with hidden answer' if hidden else ''
+
     script = '''
         on run argv
           tell application "Alfred 2"
@@ -76,34 +118,21 @@ def get_from_user(title, prompt, hidden=False):
               set alfredIcon to path to resource "appicon.icns" in bundle ¬
                 (alfredPath as alias)
 
-              set dlgTitle to (item 1 of argv)
-              set dlgPrompt to (item 2 of argv)
-
-              if (count of argv) is 3
-                set dlgHidden to (item 3 of argv as boolean)
-              else
-                set dlgHidden to false
-              end if
-
-              if dlgHidden
-                display dialog dlgPrompt & ":" with title dlgTitle ¬
-                  default answer "" with icon alfredIcon with hidden answer
-              else
-                display dialog dlgPrompt & ":" with title dlgTitle ¬
-                  default answer "" with icon alfredIcon
-              end if
-
-              set answer to text returned of result
+              try
+                display dialog "{p}:" with title "{t}" default answer "{v}" ¬
+                  buttons {b} default button "Ok" with icon alfredIcon {h}
+                set answer to (button returned of result) & "|" & ¬
+                  (text returned of result)
+              on error number -128
+                set answer to "Cancel|"
+              end
           end tell
-        end run'''
+        end run'''.format(v=value, p=prompt, t=title, h=hidden, b=buttons)
 
     from subprocess import Popen, PIPE
-    cmd = ['osascript', '-', title, prompt]
-    if hidden:
-        cmd.append('true')
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     stdout, stderr = p.communicate(script)
-    return stdout.rstrip('\n')
+    return stdout.decode('utf-8').rstrip('\n')
 
 
 def show_message(title, message):
@@ -116,17 +145,13 @@ def show_message(title, message):
               set alfredIcon to path to resource "appicon.icns" in bundle ¬
                 (alfredPath as alias)
 
-              set dlgTitle to (item 1 of argv)
-              set dlgMessage to (item 2 of argv)
-
-              display dialog dlgMessage with title dlgTitle buttons ¬
+              display dialog "{m}" with title "{t}" buttons ¬
                 {"OK"} default button "OK" with icon alfredIcon
           end tell
-        end run'''
+        end run'''.format(t=title, m=message)
 
     from subprocess import Popen, PIPE
-    cmd = ['osascript', '-', title, message]
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     p.communicate(script)
 
 
