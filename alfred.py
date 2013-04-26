@@ -132,7 +132,7 @@ def get_from_user(title, prompt, hidden=False, value=None, extra_buttons=None):
     from subprocess import Popen, PIPE
     p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     stdout, stderr = p.communicate(script)
-    return stdout.decode('utf-8').rstrip('\n')
+    return stdout.decode('utf-8').rstrip('\n').split('|')
 
 
 def show_message(title, message):
@@ -146,7 +146,7 @@ def show_message(title, message):
                 (alfredPath as alias)
 
               display dialog "{m}" with title "{t}" buttons ¬
-                {"OK"} default button "OK" with icon alfredIcon
+                {{"Ok"}} default button "Ok" with icon alfredIcon
           end tell
         end run'''.format(t=title, m=message)
 

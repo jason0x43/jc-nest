@@ -40,14 +40,15 @@ def _get_nest():
                             'again.')
 
         while True:
-            email = alfred.get_from_user('Email', 'Nest account email address')
-            if len(email) == 0:
+            btn, email = alfred.get_from_user('Email',
+                                              'Nest account email address')
+            if btn == 'Cancel':
                 nest = None
                 break
-            password = alfred.get_from_user('Password',
-                                            'Nest account password',
-                                            hidden=True)
-            if len(password) == 0:
+            btn, password = alfred.get_from_user('Password',
+                                                 'Nest account password',
+                                                 hidden=True)
+            if btn == 'Cancel':
                 nest = None
                 break
 
