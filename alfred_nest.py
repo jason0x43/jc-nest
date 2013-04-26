@@ -221,23 +221,23 @@ def tell_weather(nest, ignored):
         return (temp / 1.8) + 32
 
     def new_forecast(title, info):
-        tcond = info['conditions']
+        tcond = info['conditions'].capitalize()
         thi = info['high_temperature']
         tlo = info['low_temperature']
-        item = alfred.Item(title, subtitle=u'{}, High: {:.1f}°F, '
-                           u'Low: {:.1f}°F'.format(tcond, thi, tlo))
+        item = alfred.Item(u'{}: {}'.format(title, tcond),
+                           subtitle=u'High: {:.1f}°F,  Low: {:.1f}°F'.format(
+                           thi, tlo))
         return item
 
     data = nest.weather
-    conditions = data['now']['conditions']
+    conditions = data['now']['conditions'].capitalize()
     temp = to_deg_f(data['now']['current_temperature'])
     humidity = data['now']['current_humidity']
 
     items = []
 
-    item = alfred.Item('Now')
-    item.subtitle = u'{}, {:.1f}°F, {:.1f}% humidity'.format(
-        conditions, temp, humidity)
+    item = alfred.Item(u'Now: {}'.format(conditions))
+    item.subtitle = u'{:.1f}°F,  {:.1f}% humidity'.format(temp, humidity)
     items.append(item)
 
     items.append(new_forecast('Today', data['forecast']['daily'][0]))
