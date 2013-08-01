@@ -140,8 +140,10 @@ class Nest(object):
 
     def _get_target_temperature(self):
         if self.mode == 'range':
-            temp = [self.status['shared'][self.device_id]['target_temperature_low'],
-                    self.status['shared'][self.device_id]['target_temperature_high']]
+            temp = [self.status['shared'][self.device_id][
+                    'target_temperature_low'],
+                    self.status['shared'][self.device_id][
+                    'target_temperature_high']]
             if self.scale == 'F':
                 temp = [(t * 1.8) + 32 for t in temp]
         else:

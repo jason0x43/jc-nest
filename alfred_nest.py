@@ -84,11 +84,11 @@ def tell_target(nest, temp):
 
     if nest.mode == 'range':
         item = alfred.Item(u'Target temperature range is {lo:.1f}°{units} - '
-                           u'{hi:.1f}°{units}'.format(lo=target[0],
-                                                      hi=target[1],
-                                                      units=units))
+                           u'{hi:.1f}°{units}'.format(
+                           lo=target[0], hi=target[1], units=units))
     else:
-        item = alfred.Item(u'Target temperature: {:.1f}°{}'.format(target, units))
+        item = alfred.Item(u'Target temperature: {:.1f}°{}'.format(target,
+                           units))
 
     if len(temp) > 0:
         # only need to check for empty temp here since we already validated it
@@ -114,8 +114,8 @@ def do_target(nest, temp):
 
     if isinstance(temp, list):
         _out(u'Target temperature range is now {lo}°{units} - '
-             u'{hi}°{units}'.format(lo=temp[0], hi=temp[1],
-                                    units=nest.scale.upper()))
+             u'{hi}°{units}'.format(
+             lo=temp[0], hi=temp[1], units=nest.scale.upper()))
     else:
         _out(u'Target temperature set to {}°{}'.format(temp,
              nest.scale.upper()))
@@ -132,9 +132,8 @@ def tell_status(nest, ignore):
     item = alfred.Item(u'Temperature: {:.1f}°{}'.format(temp, units))
 
     if nest.mode == 'range':
-        target = u'Heat/cool to {l:.1f}°{u} - {h:.1f}°{u}'.format(l=target[0],
-                                                                  h=target[1],
-                                                                  u=units)
+        target = u'Heat/cool to {l:.1f}°{u} - {h:.1f}°{u}'.format(
+            l=target[0], h=target[1], u=units)
     elif nest.mode == 'heat':
         target = u'Heating to {:.1f}°{}'.format(target, units)
     else:
