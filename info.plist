@@ -110,50 +110,6 @@
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>argumenttype</key>
-				<integer>1</integer>
-				<key>escaping</key>
-				<integer>0</integer>
-				<key>keyword</key>
-				<string>nest temp</string>
-				<key>runningsubtext</key>
-				<string>Talking to Nest...</string>
-				<key>script</key>
-				<string>import alfred_nest
-alfred_nest.tell('target', '{query}')</string>
-				<key>subtext</key>
-				<string>Get or set the target temperature</string>
-				<key>title</key>
-				<string>temp</string>
-				<key>type</key>
-				<integer>3</integer>
-				<key>withspace</key>
-				<true/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.input.scriptfilter</string>
-			<key>uid</key>
-			<string>4BA98F5A-42F1-47D1-A420-1E0ECAF7421B</string>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>escaping</key>
-				<integer>0</integer>
-				<key>script</key>
-				<string>import alfred_nest
-alfred_nest.do('target', '{query}')</string>
-				<key>type</key>
-				<integer>3</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>BA3DCB1F-DFD3-4364-9CEA-42D4677FF653</string>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
 				<key>lastpathcomponent</key>
 				<false/>
 				<key>onlyshowifquerypopulated</key>
@@ -173,6 +129,86 @@ alfred_nest.do('target', '{query}')</string>
 			<string>alfred.workflow.output.notification</string>
 			<key>uid</key>
 			<string>9C5DEFD5-3025-4222-87AA-4BB2D9B8270A</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>keyword</key>
+				<string>nest temp</string>
+				<key>runningsubtext</key>
+				<string>Talking to Nest...</string>
+				<key>script</key>
+				<string>from alfred_nest import Workflow
+Workflow().tell('target', '{query}')</string>
+				<key>subtext</key>
+				<string>Get or set the target temperature</string>
+				<key>title</key>
+				<string>temp</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>4BA98F5A-42F1-47D1-A420-1E0ECAF7421B</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>script</key>
+				<string>import alfred_nest
+alfred_nest.do('target', '{query}')</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>BA3DCB1F-DFD3-4364-9CEA-42D4677FF653</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
+				<string>nest fan</string>
+				<key>runningsubtext</key>
+				<string>Talking to Nest...</string>
+				<key>script</key>
+				<string>from alfred_nest import Workflow
+Workflow().tell('fan')</string>
+				<key>subtext</key>
+				<string>Get and set your Nest's fan mode</string>
+				<key>title</key>
+				<string>fan</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>2ADDAEE0-1B40-4854-8D3B-F69D3BBF35C6</string>
+			<key>version</key>
+			<integer>0</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -189,34 +225,8 @@ alfred_nest.do('fan', '{query}')</string>
 			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
 			<string>E8C69473-7E15-4B09-ABA0-0C77B8AAFA75</string>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>argumenttype</key>
-				<integer>2</integer>
-				<key>escaping</key>
-				<integer>63</integer>
-				<key>keyword</key>
-				<string>nest fan</string>
-				<key>runningsubtext</key>
-				<string>Talking to Nest...</string>
-				<key>script</key>
-				<string>import alfred_nest
-alfred_nest.tell('fan')</string>
-				<key>subtext</key>
-				<string>Get and set your Nest's fan mode</string>
-				<key>title</key>
-				<string>fan</string>
-				<key>type</key>
-				<integer>3</integer>
-				<key>withspace</key>
-				<false/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.input.scriptfilter</string>
-			<key>uid</key>
-			<string>2ADDAEE0-1B40-4854-8D3B-F69D3BBF35C6</string>
+			<key>version</key>
+			<integer>0</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -230,8 +240,8 @@ alfred_nest.tell('fan')</string>
 				<key>runningsubtext</key>
 				<string>Talking to Nest...</string>
 				<key>script</key>
-				<string>import alfred_nest
-alfred_nest.tell('away')</string>
+				<string>from alfred_nest import Workflow
+Workflow().tell('away')</string>
 				<key>subtext</key>
 				<string>Get and set your Nest's "away" status</string>
 				<key>title</key>
@@ -245,6 +255,8 @@ alfred_nest.tell('away')</string>
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
 			<string>6F985B9F-17EC-4640-B981-BD578917750E</string>
+			<key>version</key>
+			<integer>0</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -261,6 +273,8 @@ alfred_nest.do('away', '{query}')</string>
 			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
 			<string>B1CC61CB-FAA7-4831-B5A9-CEA65ACB214E</string>
+			<key>version</key>
+			<integer>0</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -274,8 +288,8 @@ alfred_nest.do('away', '{query}')</string>
 				<key>runningsubtext</key>
 				<string>Loading...</string>
 				<key>script</key>
-				<string>import alfred_nest
-alfred_nest.tell('mode', '{query}')</string>
+				<string>from alfred_nest import Workflow
+Workflow().tell('mode', '{query}')</string>
 				<key>subtext</key>
 				<string>Set the heat/cool mode</string>
 				<key>title</key>
@@ -289,6 +303,8 @@ alfred_nest.tell('mode', '{query}')</string>
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
 			<string>5837DD24-97C1-4E59-A188-68C9A623F635</string>
+			<key>version</key>
+			<integer>0</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -305,6 +321,8 @@ alfred_nest.do('mode', '{query}')</string>
 			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
 			<string>59CD1C33-4200-4B00-BD37-9488FC26C33A</string>
+			<key>version</key>
+			<integer>0</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -318,8 +336,8 @@ alfred_nest.do('mode', '{query}')</string>
 				<key>runningsubtext</key>
 				<string>Loading...</string>
 				<key>script</key>
-				<string>import alfred_nest
-alfred_nest.tell('weather', '{query}')</string>
+				<string>from alfred_nest import Workflow
+Workflow().tell('weather', '{query}')</string>
 				<key>subtext</key>
 				<string>Weather forecast for your Nest's location</string>
 				<key>title</key>
@@ -333,6 +351,8 @@ alfred_nest.tell('weather', '{query}')</string>
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
 			<string>FDA5BD3A-C30F-4FC1-8251-BA9CB1E97589</string>
+			<key>version</key>
+			<integer>0</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -346,8 +366,8 @@ alfred_nest.tell('weather', '{query}')</string>
 				<key>runningsubtext</key>
 				<string>Talking to Nest...</string>
 				<key>script</key>
-				<string>import alfred_nest
-alfred_nest.tell('status')</string>
+				<string>from alfred_nest import Workflow
+Workflow().tell('status')</string>
 				<key>subtext</key>
 				<string>Show your Nest's status</string>
 				<key>title</key>
@@ -361,6 +381,8 @@ alfred_nest.tell('status')</string>
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
 			<string>3817F473-F259-44D4-A6B9-EA1C81A4005C</string>
+			<key>version</key>
+			<integer>0</integer>
 		</dict>
 	</array>
 	<key>readme</key>

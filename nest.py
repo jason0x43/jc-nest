@@ -31,7 +31,6 @@ class Nest(object):
             cache_dir = default_cache_dir
 
         self._session_file = '{}/session.json'.format(cache_dir)
-        self._cookie_file = '{}/cookies.json'.format(cache_dir)
         self._status = None
         self._nest_session = None
 
@@ -197,7 +196,7 @@ class Nest(object):
 
     @property
     def has_session(self):
-        if not exists(self._session_file) or not exists(self._cookie_file):
+        if not exists(self._session_file):
             return False
 
         try:
@@ -206,10 +205,9 @@ class Nest(object):
                 expiry = datetime.strptime(self.nest_session['expires_in'],
                                            '%a, %d-%b-%Y %H:%M:%S GMT')
                 if datetime.utcnow() <= expiry:
-                    with open(self._cookie_file, 'rt') as cfile:
-                        cookies = json.load(cfile)
-                        if len(cookies) > 0:
-                            return True
+                    cookies = self._nest_session['cookies']
+                    if len(cookies) > 0:
+                        return True
         except Exception:
             pass
 
@@ -231,12 +229,10 @@ class Nest(object):
             return False
 
         session = res.json()
-        cookies = dict_from_cookiejar(res.cookies)
+        session['cookies'] = dict_from_cookiejar(res.cookies)
         with open(self._session_file, 'wt') as sfile:
-            json.dump(session, sfile)
-        with open(self._cookie_file, 'wt') as cfile:
-            json.dump(cookies, cfile)
-        self._nest_session = res.json()
+            json.dump(session, sfile, indent=2)
+        self._nest_session = session
 
         return True
 
@@ -262,9 +258,8 @@ class Nest(object):
             'Accept': '*/*'
         })
 
-        with open(self._cookie_file, 'rt') as cfile:
-            cookies = json.load(cfile)
-            self._session.cookies = cookiejar_from_dict(cookies)
+        self._session.cookies = cookiejar_from_dict(
+            self._nest_session['cookies'])
 
         base_url = '{}/v2'.format(self.nest_session['urls']['transport_url'])
         url = '{}/{}'.format(base_url, path)
