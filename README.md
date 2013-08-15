@@ -43,6 +43,7 @@ The only requirements are:
 
   * Python 2.7+
   * `requests`
+  * My [jcalfred][jcalfred] python library (included in the workflow download)
 
 If you have Lion or Mountain Lion, the [prepackaged workflow][package] includes
 everything you need.
@@ -60,6 +61,7 @@ command history.
 structure my Alfred interface code.
 
 [package]: http://dl.dropbox.com/s/qmu1iyora9h6pr9/jc-nest.alfredworkflow
+[jcalfred]: https://github.com/jason0x43/jcalfred
 [nest]: http://www.nest.com
 [alfred]: http://www.alfredapp.com
 [gharlan]: http://github.com/gharlan/alfred-github-workflow
