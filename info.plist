@@ -168,8 +168,8 @@ Workflow().tell('target', '{query}')</string>
 				<key>escaping</key>
 				<integer>0</integer>
 				<key>script</key>
-				<string>import alfred_nest
-alfred_nest.do('target', '{query}')</string>
+				<string>from alfred_nest import Workflow
+Workflow().do('target', '{query}')</string>
 				<key>type</key>
 				<integer>3</integer>
 			</dict>
@@ -216,8 +216,8 @@ Workflow().tell('fan')</string>
 				<key>escaping</key>
 				<integer>63</integer>
 				<key>script</key>
-				<string>import alfred_nest
-alfred_nest.do('fan', '{query}')</string>
+				<string>from alfred_nest import Workflow
+Workflow().do('fan', '{query}')</string>
 				<key>type</key>
 				<integer>3</integer>
 			</dict>
@@ -264,8 +264,8 @@ Workflow().tell('away')</string>
 				<key>escaping</key>
 				<integer>63</integer>
 				<key>script</key>
-				<string>import alfred_nest
-alfred_nest.do('away', '{query}')</string>
+				<string>from alfred_nest import Workflow
+Workflow().do('away', '{query}')</string>
 				<key>type</key>
 				<integer>3</integer>
 			</dict>
@@ -312,8 +312,8 @@ Workflow().tell('mode', '{query}')</string>
 				<key>escaping</key>
 				<integer>127</integer>
 				<key>script</key>
-				<string>import alfred_nest
-alfred_nest.do('mode', '{query}')</string>
+				<string>from alfred_nest import Workflow
+Workflow().do('mode', '{query}')</string>
 				<key>type</key>
 				<integer>3</integer>
 			</dict>

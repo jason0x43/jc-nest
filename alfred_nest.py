@@ -16,7 +16,7 @@ MODES = {
 }
 
 
-class Workflow(jcalfred.AlfredWorkflow):
+class Workflow(jcalfred.Workflow):
     def __init__(self, *args, **kw):
         super(Workflow, self).__init__(*args, **kw)
         self.keychain = jcalfred.Keychain('jc-nest')
