@@ -82,6 +82,12 @@ class NestWorkflow(Workflow):
 
         return account
 
+    def do_debug(self, ignored):
+        '''Opent the debug log file'''
+        LOG.debug('opening log file %s', self.log_file)
+        import os
+        os.system('open "{0}"'.format(self.log_file))
+
     def tell_nest(self, query):
         '''Display the available Nests'''
         LOG.debug('listing Nests')

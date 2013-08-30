@@ -6,6 +6,17 @@
 	<string>jc-nest</string>
 	<key>connections</key>
 	<dict>
+		<key>0701BE72-EC48-47B0-8EA1-7237223B6847</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>EEBC9CAC-E0ED-428F-ADDD-2609F9701053</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
 		<key>2ADDAEE0-1B40-4854-8D3B-F69D3BBF35C6</key>
 		<array>
 			<dict>
@@ -454,11 +465,55 @@ NestWorkflow().do('nest', '{query}')</string>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>keyword</key>
+				<string>nest log</string>
+				<key>subtext</key>
+				<string>Show debug log</string>
+				<key>text</key>
+				<string>log</string>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.keyword</string>
+			<key>uid</key>
+			<string>0701BE72-EC48-47B0-8EA1-7237223B6847</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>script</key>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().do('debug')</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>EEBC9CAC-E0ED-428F-ADDD-2609F9701053</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string></string>
 	<key>uidata</key>
 	<dict>
+		<key>0701BE72-EC48-47B0-8EA1-7237223B6847</key>
+		<dict>
+			<key>ypos</key>
+			<real>850</real>
+		</dict>
 		<key>2ADDAEE0-1B40-4854-8D3B-F69D3BBF35C6</key>
 		<dict>
 			<key>ypos</key>
@@ -513,6 +568,11 @@ NestWorkflow().do('nest', '{query}')</string>
 		<dict>
 			<key>ypos</key>
 			<real>130</real>
+		</dict>
+		<key>EEBC9CAC-E0ED-428F-ADDD-2609F9701053</key>
+		<dict>
+			<key>ypos</key>
+			<real>850</real>
 		</dict>
 		<key>FDA5BD3A-C30F-4FC1-8251-BA9CB1E97589</key>
 		<dict>
