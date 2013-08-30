@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # coding=UTF-8
 
+
+import jcalfred
+if float(jcalfred.__version__) < 20130830.0:
+    raise Exception('This workflow requires a newer version of jcalfred')
+
+
 import nest as nestlib
 import logging
 from jcalfred import Workflow, Item, Keychain
@@ -23,7 +29,7 @@ class NestWorkflow(Workflow):
         self.account = self._get_account()
         self.nest = None
 
-        LOG.warn('nests: %s', self.account.nests)
+        LOG.debug('nests: %s', self.account.nests)
 
         if 'nest' in self.config:
             LOG.debug('using saved nest id %s', self.config['nest'])

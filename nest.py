@@ -236,8 +236,8 @@ class Account(object):
     def structures(self):
         if self._structures is None:
             structures = {}
-            LOG.warn('raw structs: %s',
-                     self.status['user'][self.user_id]['structures'])
+            LOG.debug('structs: %s',
+                      self.status['user'][self.user_id]['structures'])
             for struct in self.status['user'][self.user_id]['structures']:
                 id = struct.split('.')[1]
                 structures[id] = Structure(id, self)

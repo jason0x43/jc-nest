@@ -1,7 +1,6 @@
 {
-  "loglevel": "DEBUG", 
   "dependencies": [
     "jcalfred", 
     "requests"
-  ]
+  ] 
 }
