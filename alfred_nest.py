@@ -32,9 +32,14 @@ class NestWorkflow(Workflow):
         LOG.debug('nests: %s', self.account.nests)
 
         if 'nest' in self.config:
-            LOG.debug('using saved nest id %s', self.config['nest'])
-            self.nest = self.account.nests[self.config['nest']]
-        else:
+            try:
+                self.nest = self.account.nests[self.config['nest']]
+                LOG.debug('using saved nest id %s', self.config['nest'])
+            except Exception:
+                LOG.exception('unable to use saved nest ID %s',
+                              self.config['nest'])
+
+        if not self.nest:
             LOG.debug('using first nest id')
             self.nest = self.account.nests.values()[0]
             self.config['nest'] = self.nest.id
