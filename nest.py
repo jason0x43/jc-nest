@@ -5,6 +5,10 @@ from os.path import exists, expanduser, dirname
 from os import makedirs
 import json
 import requests
+import logging
+
+
+LOG = logging.getLogger(__name__)
 
 
 default_cache_dir = expanduser('~/.nest')
@@ -24,134 +28,93 @@ class NotAuthenticated(Exception):
 
 
 class Nest(object):
-    def __init__(self, cache_dir=None):
-        '''Initialize this nest interface'''
-
-        if cache_dir is None:
-            cache_dir = default_cache_dir
-
-        self._session_file = '{}/session.json'.format(cache_dir)
-        self._status = None
-        self._nest_session = None
+    def __init__(self, id, structure):
+        '''Initialize this Nest'''
+        self._id = id
+        self._structure = structure
+        self._account = structure.account
 
     @property
-    def status(self):
-        if self._status is None:
-            r = self._request('GET', 'mobile/user.{}'.format(self.user_id))
-            self._status = r.json()
-        return self._status
+    def account(self):
+        return self._account
 
     @property
-    def structure_id(self):
-        return self.status['user'][self.user_id]['structures'][0].split('.')[1]
+    def name(self):
+        return self.account.status['shared'][self.id]['name']
 
     @property
-    def device_id(self):
-        return self.status['structure'][self.structure_id]['devices'][
-            0].split('.')[1]
-
-    @property
-    def location(self):
-        return self.status['structure'][self.structure_id]['postal_code']
+    def id(self):
+        return self._id
 
     @property
     def scale(self):
-        return self.status['device'][self.device_id]['temperature_scale']
-
-    @property
-    def user_id(self):
-        return self.nest_session['userid']
+        return self.account.status['device'][self.id]['temperature_scale']
 
     @property
     def ip(self):
-        return self.status['metadata'][self.device_id]['last_ip']
+        return self.account.status['metadata'][self.id]['last_ip']
 
     @property
     def humidity(self):
-        return self.status['device'][self.device_id]['current_humidity']
+        return self.account.status['device'][self.id]['current_humidity']
 
     @property
     def temperature(self):
-        temp = self.status['shared'][self.device_id]['current_temperature']
+        temp = self.account.status['shared'][self.id][
+            'current_temperature']
         if self.scale == 'F':
             temp = (temp * 1.8) + 32
         return temp
 
     @property
     def leaf(self):
-        return self.status['device'][self.device_id]['leaf']
+        return self.account.status['device'][self.id]['leaf']
 
     @property
-    def weather(self):
-        r = requests.get('https://home.nest.com/api/0.1/weather/forecast/'
-                         '{}'.format(self.location))
-        return r.json()
-
-    # away ###############################
-
-    def _get_mode(self):
-        mode = self.status['device'][self.device_id]['current_schedule_mode']
+    def mode(self):
+        mode = self.account.status['device'][self.id][
+            'current_schedule_mode']
         return mode.lower()
 
-    def _set_mode(self, mode):
+    @mode.setter
+    def set_mode(self, mode):
         mode = mode.upper()
-        data = {'device': {self.device_id: {'current_schedule_mode': mode}}}
+        data = {'device': {self.id: {'current_schedule_mode': mode}}}
         self._request('POST', 'put', data=data)
-        self.status['device'][self.device_id]['current_schedule_mode'] = mode
+        self.account.status['device'][self.id][
+            'current_schedule_mode'] = mode
 
-    mode = property(_get_mode, _set_mode)
+    @property
+    def fan(self):
+        return self.account.status['device'][self.id]['fan_mode']
 
-    # away ###############################
-
-    def _get_away(self):
-        return self.status['structure'][self.structure_id]['away']
-
-    def _set_away(self, value):
-        from time import time
-        value = bool(value)
-        data = {
-            'away_timestamp': int(time()),
-            'away': value,
-            'away_setter': 0
-        }
-        self._request('POST', 'put/structure.{}'.format(self.structure_id),
-                      data=data)
-        self.status['structure'][self.structure_id]['away'] = value
-
-    away = property(_get_away, _set_away)
-
-    # fan mode ###########################
-
-    def _get_fan(self):
-        return self.status['device'][self.device_id]['fan_mode']
-
-    def _set_fan(self, mode):
+    @fan.setter
+    def set_fan(self, mode):
         if mode not in ('auto', 'on'):
             raise Exception('Invalid fan mode "{}". Must be "auto" or '
                             '"on"'.format(mode))
-        data = {'device': {self.device_id: {'fan_mode': mode}}}
+        data = {'device': {self.id: {'fan_mode': mode}}}
         self._request('POST', 'put', data=data)
-        self.status['device'][self.device_id]['fan_mode'] = mode
+        self.account.status['device'][self.id]['fan_mode'] = mode
 
-    fan = property(_get_fan, _set_fan)
-
-    # target temp ########################
-
-    def _get_target_temperature(self):
+    @property
+    def target_temperature(self):
         if self.mode == 'range':
-            temp = [self.status['shared'][self.device_id][
+            temp = [self.account.status['shared'][self.id][
                     'target_temperature_low'],
-                    self.status['shared'][self.device_id][
+                    self.account.status['shared'][self.id][
                     'target_temperature_high']]
             if self.scale == 'F':
                 temp = [(t * 1.8) + 32 for t in temp]
         else:
-            temp = self.status['shared'][self.device_id]['target_temperature']
+            temp = self.account.status['shared'][self.id][
+                'target_temperature']
             if self.scale == 'F':
                 temp = (temp * 1.8) + 32
         return temp
 
-    def _set_target_temperature(self, temp):
+    @target_temperature.setter
+    def set_target_temperature(self, temp):
         if isinstance(temp, (list, tuple)):
             # temp is (low, high)
             lo_and_hi = [float(t) for t in temp]
@@ -172,27 +135,130 @@ class Nest(object):
                 'target_temperature': temp
             }
 
-        self._request('POST', 'put/shared.{}'.format(self.device_id),
+        self._request('POST', 'put/shared.{}'.format(self.id),
                       data=data)
 
         if isinstance(temp, (list, tuple)):
-            self.status['shared'][self.device_id][
+            self.account.status['shared'][self.id][
                 'target_temperature_low'] = lo_and_hi[0]
-            self.status['shared'][self.device_id][
+            self.account.status['shared'][self.id][
                 'target_temperature_high'] = lo_and_hi[1]
         else:
-            self.status['shared'][self.device_id]['target_temperature'] = temp
+            self.account.status['shared'][self.id][
+                'target_temperature'] = temp
 
-    target_temperature = property(_get_target_temperature,
-                                  _set_target_temperature)
 
-    ######################################
+class Structure(object):
+    def __init__(self, structure_id, account):
+        '''Initialize this structure'''
+        self._account = account
+        self._id = structure_id
+        self._nests = None
 
     @property
-    def nest_session(self):
-        if self._nest_session is None:
+    def account(self):
+        return self._account
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def name(self):
+        return self.account.status['structure'][self.id]['name']
+
+    @property
+    def nests(self):
+        if self._nests is None:
+            nests = {}
+            for dev in self.account.status['structure'][self.id][
+                    'devices']:
+                id = dev.split('.')[1]
+                nests[id] = Nest(id, self)
+            self._nests = nests
+        return self._nests
+
+    @property
+    def location(self):
+        return self.account.status['structure'][self.id]['postal_code']
+
+    @property
+    def weather(self):
+        r = requests.get('https://home.nest.com/api/0.1/weather/forecast/'
+                         '{}'.format(self.location))
+        return r.json()
+
+    # away ###############################
+
+    @property
+    def away(self):
+        return self.account.status['structure'][self.id]['away']
+
+    @away.setter
+    def set_away(self, value):
+        from time import time
+        value = bool(value)
+        data = {
+            'away_timestamp': int(time()),
+            'away': value,
+            'away_setter': 0
+        }
+        self.account._request('POST', 'put/structure.{}'.format(self.id),
+                              data=data)
+        self.account.status['structure'][self.id]['away'] = value
+
+
+class Account(object):
+    def __init__(self, cache_dir=None):
+        '''Initialize this nest interface'''
+
+        if cache_dir is None:
+            cache_dir = default_cache_dir
+
+        self._session_file = '{}/session.json'.format(cache_dir)
+        self._status = None
+        self._structures = None
+        self._nests = None
+        self._session = None
+
+    @property
+    def status(self):
+        if self._status is None:
+            r = self._request('GET', 'mobile/user.{}'.format(self.user_id))
+            self._status = r.json()
+        return self._status
+
+    @property
+    def structures(self):
+        if self._structures is None:
+            structures = {}
+            LOG.warn('raw structs: %s',
+                     self.status['user'][self.user_id]['structures'])
+            for struct in self.status['user'][self.user_id]['structures']:
+                id = struct.split('.')[1]
+                structures[id] = Structure(id, self)
+            self._structures = structures
+        return self._structures
+
+    @property
+    def nests(self):
+        if self._nests is None:
+            nests = {}
+            for struct in self.structures.values():
+                for id, nest in struct.nests.items():
+                    nests[id] = nest
+            self._nests = nests
+        return self._nests
+
+    @property
+    def user_id(self):
+        return self.session['userid']
+
+    @property
+    def session(self):
+        if self._session is None:
             raise NotAuthenticated('No session available -- login first')
-        return self._nest_session
+        return self._session
 
     @property
     def has_session(self):
@@ -201,11 +267,11 @@ class Nest(object):
 
         try:
             with open(self._session_file, 'rt') as sfile:
-                self._nest_session = json.load(sfile)
-                expiry = datetime.strptime(self.nest_session['expires_in'],
+                self._session = json.load(sfile)
+                expiry = datetime.strptime(self.session['expires_in'],
                                            '%a, %d-%b-%Y %H:%M:%S GMT')
                 if datetime.utcnow() <= expiry:
-                    cookies = self._nest_session['cookies']
+                    cookies = self._session['cookies']
                     if len(cookies) > 0:
                         return True
         except Exception:
@@ -232,7 +298,7 @@ class Nest(object):
         session['cookies'] = dict_from_cookiejar(res.cookies)
         with open(self._session_file, 'wt') as sfile:
             json.dump(session, sfile, indent=2)
-        self._nest_session = session
+        self._session = session
 
         return True
 
@@ -247,35 +313,35 @@ class Nest(object):
             raise NotAuthenticated('No session -- login first')
 
         from requests.utils import cookiejar_from_dict
-        self._session = requests.Session()
-        self._session.headers.update({
+        self._requestor = requests.Session()
+        self._requestor.headers.update({
             'User-Agent': user_agent,
-            'Authorization': 'Basic ' + self.nest_session['access_token'],
-            'X-nl-user-id': self.nest_session['userid'],
+            'Authorization': 'Basic ' + self.session['access_token'],
+            'X-nl-user-id': self.session['userid'],
             'X-nl-protocol-version': '1',
             'Accept-Language': 'en-us',
             'Connection': 'keep-alive',
             'Accept': '*/*'
         })
 
-        self._session.cookies = cookiejar_from_dict(
-            self._nest_session['cookies'])
+        self._requestor.cookies = cookiejar_from_dict(
+            self._session['cookies'])
 
-        base_url = '{}/v2'.format(self.nest_session['urls']['transport_url'])
+        base_url = '{}/v2'.format(self.session['urls']['transport_url'])
         url = '{}/{}'.format(base_url, path)
 
         if method == 'GET':
             # don't put headers it a status request
             if not url.endswith('.json'):
-                r = self._session.get(url)
+                r = self._requestor.get(url)
             else:
                 r = requests.get(url)
         elif method == 'POST':
             if not isinstance(data, (str, unicode)):
                 data = json.dumps(data)
-            r = self._session.post(url, data=data)
+            r = self._requestor.post(url, data=data)
         elif method == 'DELETE':
-            r = self._session.delete(url)
+            r = self._requestor.delete(url)
         else:
             raise Exception('Invalid method "{}"'.format(method))
 

@@ -2,8 +2,8 @@
 # coding=UTF-8
 
 import nest as nestlib
-import jcalfred
 import logging
+from jcalfred import Workflow, Item, Keychain
 
 
 LOG = logging.getLogger(__name__)
@@ -16,19 +16,39 @@ MODES = {
 }
 
 
-class Workflow(jcalfred.Workflow):
+class NestWorkflow(Workflow):
     def __init__(self, *args, **kw):
-        super(Workflow, self).__init__(*args, **kw)
-        self.keychain = jcalfred.Keychain('jc-nest')
-        self.nest = self._get_nest()
+        super(NestWorkflow, self).__init__(*args, **kw)
+        self.keychain = Keychain('jc-nest')
+        self.account = self._get_account()
+        self.nest = None
+        self.structure = None
 
-    def _get_nest(self):
+        LOG.warn('nests: %s', self.account.nests)
+
+        if 'structure' in self.config:
+            LOG.debug('using saved structure id %s', self.config['structure'])
+            self.structure = self.account.structures[self.config['structure']]
+        else:
+            LOG.debug('using first structure id')
+            self.structure = self.account.structures.values()[0]
+            self.config['structure'] = self.structure.id
+
+        if 'nest' in self.config:
+            LOG.debug('using saved nest id %s', self.config['nest'])
+            self.nest = self.account.nests[self.config['nest']]
+        else:
+            LOG.debug('using first nest id')
+            self.nest = self.account.nests.values()[0]
+            self.config['nest'] = self.nest.id
+
+    def _get_account(self):
         '''Get an authenticated Nest object'''
         LOG.debug('getting Nest')
 
-        nest = nestlib.Nest(cache_dir=self.cache_dir)
+        account = nestlib.Account(cache_dir=self.cache_dir)
 
-        if not nest.has_session:
+        if not account.has_session:
             entry = self.keychain.get_password('nest')
 
             if not entry:
@@ -46,15 +66,15 @@ class Workflow(jcalfred.Workflow):
                     btn, email = self.get_from_user(
                         'Email', 'Nest account email address')
                     if btn == 'Cancel':
-                        nest = None
+                        account = None
                         break
                     btn, password = self.get_from_user(
                         'Password', 'Nest account password', hidden=True)
                     if btn == 'Cancel':
-                        nest = None
+                        account = None
                         break
 
-                if nest.login(email, password):
+                if account.login(email, password):
                     if not entry:
                         self.show_message('Success!',
                                           "You're logged in an ready to go!")
@@ -69,7 +89,59 @@ class Workflow(jcalfred.Workflow):
                                       'incorrect. Click OK to re-enter your '
                                       'login information.')
 
-        return nest
+        return account
+
+    def tell_nest(self, query):
+        '''Display the available Nests'''
+        LOG.debug('listing Nests')
+
+        items = []
+        for nest in self.account.nests.values():
+            title = unicode(nest.name)
+            if nest.id == self.nest.id:
+                title += u' (active)'
+            items.append(Item(title, subtitle=u'ID: ' + nest.id, arg=nest.id,
+                              valid=True))
+
+        if len(query.strip()) > 0:
+            q = query.strip().lower()
+            items = self.fuzzy_match(q, items, key=lambda i: i.title.lower())
+
+        return items
+
+    def do_nest(self, nest_id):
+        '''Select the active Nest'''
+        LOG.debug('selecting Nest')
+        self.nest = self.account.nests[nest_id]
+        self.config['nest'] = nest_id
+        self.puts(u'Set active Nest to "{0}" ({1})'.format(self.nest.name,
+                                                           nest_id))
+
+    def tell_structure(self, query):
+        '''Display the available structures'''
+        LOG.debug('listing Nests')
+
+        items = []
+        for struct in self.account.structures.values():
+            title = unicode(struct.name)
+            if struct.id == self.structure.id:
+                title += u' (active)'
+            items.append(Item(title, subtitle=u'ID: ' + struct.id,
+                              arg=struct.id, valid=True))
+
+        if len(query.strip()) > 0:
+            q = query.strip().lower()
+            items = self.fuzzy_match(q, items, key=lambda i: i.title.lower())
+
+        return items
+
+    def do_structure(self, struct_id):
+        '''Select the active structure'''
+        LOG.debug('selecting structure')
+        self.structure = self.account.structures[struct_id]
+        self.config['structure'] = struct_id
+        self.puts(u'Set active structure to "{0}" ({1})'.format(
+                  self.structure.name, struct_id))
 
     def tell_target(self, temp):
         '''Tell the target temperature'''
@@ -83,19 +155,19 @@ class Workflow(jcalfred.Workflow):
         if self.nest.mode == 'range' and len(temp) > 0:
             temps = temp.split()
             if len(temps) != 2:
-                return [jcalfred.Item('Waiting for valid input...')]
+                return [Item('Waiting for valid input...')]
             for t in temps:
                 if len(t) == 1 or len(t) > 2:
-                    return [jcalfred.Item('Waiting for valid input...')]
+                    return [Item('Waiting for valid input...')]
 
         units = self.nest.scale.upper()
 
         if self.nest.mode == 'range':
-            item = jcalfred.Item(
+            item = Item(
                 u'Target temperature range is %.1f°%s - '
                 u'%.1f°%s' % (target[0], units, target[1], units))
         else:
-            item = jcalfred.Item(
+            item = Item(
                 u'Target temperature: %.1f°%s' % (target, units))
 
         if len(temp) > 0:
@@ -135,10 +207,10 @@ class Workflow(jcalfred.Workflow):
         temp = self.nest.temperature
         target = self.nest.target_temperature
         humidity = self.nest.humidity
-        away = 'yes' if self.nest.away else 'no'
+        away = 'yes' if self.structure.away else 'no'
         fan = self.nest.fan
         units = self.nest.scale.upper()
-        item = jcalfred.Item(u'Temperature: %.1f°%s' % (temp, units))
+        item = Item(u'Temperature: %.1f°%s' % (temp, units))
 
         if self.nest.mode == 'range':
             target = u'Heat/cool to %.1f°%s - %.1f°%s' % (
@@ -167,7 +239,7 @@ class Workflow(jcalfred.Workflow):
             subtitle += 'to auto mode'
             arg = 'auto'
 
-        item = jcalfred.Item(msg, valid=True, arg=arg, subtitle=subtitle)
+        item = Item(msg, valid=True, arg=arg, subtitle=subtitle)
         return [item]
 
     def do_fan(self, mode):
@@ -188,15 +260,15 @@ class Workflow(jcalfred.Workflow):
         '''Tell the Nest's "away" status'''
         LOG.debug('telling away')
 
-        if self.nest.away:
+        if self.structure.away:
             msg = "Nest thinks you're away"
             arg = 'off'
         else:
             msg = "Nest thinks you're at home"
             arg = 'on'
 
-        item = jcalfred.Item(msg, valid=True, arg=arg,
-                             subtitle='Press enter to toggle')
+        item = Item(msg, valid=True, arg=arg,
+                    subtitle='Press enter to toggle')
         return [item]
 
     def do_away(self, val):
@@ -214,10 +286,10 @@ class Workflow(jcalfred.Workflow):
             else:
                 raise Exception('Invalid input')
 
-            self.nest.away = val
+            self.structure.away = val
             away = val
         else:
-            away = self.nest.away
+            away = self.structure.away
 
         if away:
             self.puts('Away mode is enabled')
@@ -235,19 +307,19 @@ class Workflow(jcalfred.Workflow):
             tcond = info['conditions'].capitalize()
             thi = info['high_temperature']
             tlo = info['low_temperature']
-            item = jcalfred.Item(u'%s: %s' % (title, tcond),
-                                 subtitle=u'High: %.1f°F,  Low: %.1f°F' % (
-                                 thi, tlo))
+            item = Item(u'%s: %s' % (title, tcond),
+                        subtitle=u'High: %.1f°F,  Low: %.1f°F' % (
+                        thi, tlo))
             return item
 
-        data = self.nest.weather
+        data = self.structure.weather
         conditions = data['now']['conditions'].capitalize()
         temp = to_deg_f(data['now']['current_temperature'])
         humidity = data['now']['current_humidity']
 
         items = []
 
-        item = jcalfred.Item(u'Now: %s' % conditions)
+        item = Item(u'Now: %s' % conditions)
         item.subtitle = u'%.1f°F,  %.1f%% humidity' % (temp, humidity)
         items.append(item)
 
@@ -264,8 +336,8 @@ class Workflow(jcalfred.Workflow):
             title = MODES[mode]['label']
             if mode == self.nest.mode:
                 title += ' (active)'
-            items.append(jcalfred.Item(title, subtitle=MODES[mode]['desc'],
-                                       arg=mode, valid=True))
+            items.append(Item(title, subtitle=MODES[mode]['desc'],
+                         arg=mode, valid=True))
 
         if len(query.strip()) > 0:
             q = query.strip().lower()
@@ -282,4 +354,4 @@ class Workflow(jcalfred.Workflow):
 
 if __name__ == '__main__':
     from sys import argv
-    getattr(Workflow(), argv[1])(*argv[2:])
+    getattr(NestWorkflow(), argv[1])(*argv[2:])

@@ -17,11 +17,33 @@
 				<string></string>
 			</dict>
 		</array>
+		<key>490FE48D-A443-46D0-BA0A-DF2970D0E3E4</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>9C5DEFD5-3025-4222-87AA-4BB2D9B8270A</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
 		<key>4BA98F5A-42F1-47D1-A420-1E0ECAF7421B</key>
 		<array>
 			<dict>
 				<key>destinationuid</key>
 				<string>BA3DCB1F-DFD3-4364-9CEA-42D4677FF653</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>4FB60272-3475-4CAA-A6C3-85B5213C037E</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>490FE48D-A443-46D0-BA0A-DF2970D0E3E4</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -55,6 +77,17 @@
 			<dict>
 				<key>destinationuid</key>
 				<string>B1CC61CB-FAA7-4831-B5A9-CEA65ACB214E</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>B15BB9F9-1A8A-4F95-80CD-9C6A7179DDD3</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>9C5DEFD5-3025-4222-87AA-4BB2D9B8270A</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -96,6 +129,17 @@
 		</array>
 		<key>FDA5BD3A-C30F-4FC1-8251-BA9CB1E97589</key>
 		<array/>
+		<key>FE3559FA-EBC6-4F5D-A897-B5EFADE44AEB</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>B15BB9F9-1A8A-4F95-80CD-9C6A7179DDD3</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
 	</dict>
 	<key>createdby</key>
 	<string>Jason Cheatham</string>
@@ -107,6 +151,54 @@
 	<string>Nest</string>
 	<key>objects</key>
 	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>keyword</key>
+				<string>nest temp</string>
+				<key>runningsubtext</key>
+				<string>Talking to Nest...</string>
+				<key>script</key>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().tell('target', '{query}')</string>
+				<key>subtext</key>
+				<string>Get or set a Nest's target temperature</string>
+				<key>title</key>
+				<string>temp</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>4BA98F5A-42F1-47D1-A420-1E0ECAF7421B</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>script</key>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().do('target', '{query}')</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>BA3DCB1F-DFD3-4364-9CEA-42D4677FF653</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
@@ -135,89 +227,11 @@
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>argumenttype</key>
-				<integer>1</integer>
-				<key>escaping</key>
-				<integer>0</integer>
-				<key>keyword</key>
-				<string>nest temp</string>
-				<key>runningsubtext</key>
-				<string>Talking to Nest...</string>
-				<key>script</key>
-				<string>from alfred_nest import Workflow
-Workflow().tell('target', '{query}')</string>
-				<key>subtext</key>
-				<string>Get or set the target temperature</string>
-				<key>title</key>
-				<string>temp</string>
-				<key>type</key>
-				<integer>3</integer>
-				<key>withspace</key>
-				<true/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.input.scriptfilter</string>
-			<key>uid</key>
-			<string>4BA98F5A-42F1-47D1-A420-1E0ECAF7421B</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>escaping</key>
-				<integer>0</integer>
-				<key>script</key>
-				<string>from alfred_nest import Workflow
-Workflow().do('target', '{query}')</string>
-				<key>type</key>
-				<integer>3</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>BA3DCB1F-DFD3-4364-9CEA-42D4677FF653</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>argumenttype</key>
-				<integer>2</integer>
-				<key>escaping</key>
-				<integer>63</integer>
-				<key>keyword</key>
-				<string>nest fan</string>
-				<key>runningsubtext</key>
-				<string>Talking to Nest...</string>
-				<key>script</key>
-				<string>from alfred_nest import Workflow
-Workflow().tell('fan')</string>
-				<key>subtext</key>
-				<string>Get and set your Nest's fan mode</string>
-				<key>title</key>
-				<string>fan</string>
-				<key>type</key>
-				<integer>3</integer>
-				<key>withspace</key>
-				<false/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.input.scriptfilter</string>
-			<key>uid</key>
-			<string>2ADDAEE0-1B40-4854-8D3B-F69D3BBF35C6</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
 				<key>escaping</key>
 				<integer>63</integer>
 				<key>script</key>
-				<string>from alfred_nest import Workflow
-Workflow().do('fan', '{query}')</string>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().do('fan', '{query}')</string>
 				<key>type</key>
 				<integer>3</integer>
 			</dict>
@@ -236,14 +250,44 @@ Workflow().do('fan', '{query}')</string>
 				<key>escaping</key>
 				<integer>63</integer>
 				<key>keyword</key>
+				<string>nest fan</string>
+				<key>runningsubtext</key>
+				<string>Talking to Nest...</string>
+				<key>script</key>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().tell('fan')</string>
+				<key>subtext</key>
+				<string>Get and set a Nest's fan mode</string>
+				<key>title</key>
+				<string>fan</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>2ADDAEE0-1B40-4854-8D3B-F69D3BBF35C6</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
 				<string>nest away</string>
 				<key>runningsubtext</key>
 				<string>Talking to Nest...</string>
 				<key>script</key>
-				<string>from alfred_nest import Workflow
-Workflow().tell('away')</string>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().tell('away')</string>
 				<key>subtext</key>
-				<string>Get and set your Nest's "away" status</string>
+				<string>Get and set your home's "away" status</string>
 				<key>title</key>
 				<string>away</string>
 				<key>type</key>
@@ -264,8 +308,8 @@ Workflow().tell('away')</string>
 				<key>escaping</key>
 				<integer>63</integer>
 				<key>script</key>
-				<string>from alfred_nest import Workflow
-Workflow().do('away', '{query}')</string>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().do('away', '{query}')</string>
 				<key>type</key>
 				<integer>3</integer>
 			</dict>
@@ -288,10 +332,10 @@ Workflow().do('away', '{query}')</string>
 				<key>runningsubtext</key>
 				<string>Loading...</string>
 				<key>script</key>
-				<string>from alfred_nest import Workflow
-Workflow().tell('mode', '{query}')</string>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().tell('mode', '{query}')</string>
 				<key>subtext</key>
-				<string>Set the heat/cool mode</string>
+				<string>Set a Nest's heat/cool mode</string>
 				<key>title</key>
 				<string>mode</string>
 				<key>type</key>
@@ -312,8 +356,8 @@ Workflow().tell('mode', '{query}')</string>
 				<key>escaping</key>
 				<integer>127</integer>
 				<key>script</key>
-				<string>from alfred_nest import Workflow
-Workflow().do('mode', '{query}')</string>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().do('mode', '{query}')</string>
 				<key>type</key>
 				<integer>3</integer>
 			</dict>
@@ -336,10 +380,10 @@ Workflow().do('mode', '{query}')</string>
 				<key>runningsubtext</key>
 				<string>Loading...</string>
 				<key>script</key>
-				<string>from alfred_nest import Workflow
-Workflow().tell('weather', '{query}')</string>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().tell('weather', '{query}')</string>
 				<key>subtext</key>
-				<string>Weather forecast for your Nest's location</string>
+				<string>Weather forecast for your location</string>
 				<key>title</key>
 				<string>weather</string>
 				<key>type</key>
@@ -366,10 +410,10 @@ Workflow().tell('weather', '{query}')</string>
 				<key>runningsubtext</key>
 				<string>Talking to Nest...</string>
 				<key>script</key>
-				<string>from alfred_nest import Workflow
-Workflow().tell('status')</string>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().tell('status')</string>
 				<key>subtext</key>
-				<string>Show your Nest's status</string>
+				<string>Show the status of the active Nest</string>
 				<key>title</key>
 				<string>status</string>
 				<key>type</key>
@@ -381,6 +425,102 @@ Workflow().tell('status')</string>
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
 			<string>3817F473-F259-44D4-A6B9-EA1C81A4005C</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>keyword</key>
+				<string>nest nest</string>
+				<key>runningsubtext</key>
+				<string>Finding Nests…</string>
+				<key>script</key>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().tell('nest', '{query}')</string>
+				<key>subtext</key>
+				<string>List your Nests and choose the active one</string>
+				<key>title</key>
+				<string>nest</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>FE3559FA-EBC6-4F5D-A897-B5EFADE44AEB</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>script</key>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().do('nest', '{query}')</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>B15BB9F9-1A8A-4F95-80CD-9C6A7179DDD3</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>script</key>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().do('structure', '{query}')</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>490FE48D-A443-46D0-BA0A-DF2970D0E3E4</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>keyword</key>
+				<string>nest struct</string>
+				<key>runningsubtext</key>
+				<string>Finding structures...</string>
+				<key>script</key>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().tell('structure', '{query}')</string>
+				<key>subtext</key>
+				<string>List your account structures and choose the active one</string>
+				<key>title</key>
+				<string>struct</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>4FB60272-3475-4CAA-A6C3-85B5213C037E</string>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
@@ -399,10 +539,20 @@ Workflow().tell('status')</string>
 			<key>ypos</key>
 			<real>610</real>
 		</dict>
+		<key>490FE48D-A443-46D0-BA0A-DF2970D0E3E4</key>
+		<dict>
+			<key>ypos</key>
+			<real>850</real>
+		</dict>
 		<key>4BA98F5A-42F1-47D1-A420-1E0ECAF7421B</key>
 		<dict>
 			<key>ypos</key>
 			<real>10</real>
+		</dict>
+		<key>4FB60272-3475-4CAA-A6C3-85B5213C037E</key>
+		<dict>
+			<key>ypos</key>
+			<real>850</real>
 		</dict>
 		<key>5837DD24-97C1-4E59-A188-68C9A623F635</key>
 		<dict>
@@ -424,6 +574,11 @@ Workflow().tell('status')</string>
 			<key>ypos</key>
 			<real>10</real>
 		</dict>
+		<key>B15BB9F9-1A8A-4F95-80CD-9C6A7179DDD3</key>
+		<dict>
+			<key>ypos</key>
+			<real>730</real>
+		</dict>
 		<key>B1CC61CB-FAA7-4831-B5A9-CEA65ACB214E</key>
 		<dict>
 			<key>ypos</key>
@@ -443,6 +598,11 @@ Workflow().tell('status')</string>
 		<dict>
 			<key>ypos</key>
 			<real>490</real>
+		</dict>
+		<key>FE3559FA-EBC6-4F5D-A897-B5EFADE44AEB</key>
+		<dict>
+			<key>ypos</key>
+			<real>730</real>
 		</dict>
 	</dict>
 	<key>webaddress</key>
