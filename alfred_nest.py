@@ -22,17 +22,8 @@ class NestWorkflow(Workflow):
         self.keychain = Keychain('jc-nest')
         self.account = self._get_account()
         self.nest = None
-        self.structure = None
 
         LOG.warn('nests: %s', self.account.nests)
-
-        if 'structure' in self.config:
-            LOG.debug('using saved structure id %s', self.config['structure'])
-            self.structure = self.account.structures[self.config['structure']]
-        else:
-            LOG.debug('using first structure id')
-            self.structure = self.account.structures.values()[0]
-            self.config['structure'] = self.structure.id
 
         if 'nest' in self.config:
             LOG.debug('using saved nest id %s', self.config['nest'])
@@ -100,7 +91,9 @@ class NestWorkflow(Workflow):
             title = unicode(nest.name)
             if nest.id == self.nest.id:
                 title += u' (active)'
-            items.append(Item(title, subtitle=u'ID: ' + nest.id, arg=nest.id,
+            subtitle = u'ID: {0}    Location: {1}'.format(nest.id,
+                                                          nest.structure.name)
+            items.append(Item(title, subtitle=subtitle, arg=nest.id,
                               valid=True))
 
         if len(query.strip()) > 0:
@@ -117,32 +110,6 @@ class NestWorkflow(Workflow):
         self.puts(u'Set active Nest to "{0}" ({1})'.format(self.nest.name,
                                                            nest_id))
 
-    def tell_structure(self, query):
-        '''Display the available structures'''
-        LOG.debug('listing Nests')
-
-        items = []
-        for struct in self.account.structures.values():
-            title = unicode(struct.name)
-            if struct.id == self.structure.id:
-                title += u' (active)'
-            items.append(Item(title, subtitle=u'ID: ' + struct.id,
-                              arg=struct.id, valid=True))
-
-        if len(query.strip()) > 0:
-            q = query.strip().lower()
-            items = self.fuzzy_match(q, items, key=lambda i: i.title.lower())
-
-        return items
-
-    def do_structure(self, struct_id):
-        '''Select the active structure'''
-        LOG.debug('selecting structure')
-        self.structure = self.account.structures[struct_id]
-        self.config['structure'] = struct_id
-        self.puts(u'Set active structure to "{0}" ({1})'.format(
-                  self.structure.name, struct_id))
-
     def tell_target(self, temp):
         '''Tell the target temperature'''
         LOG.debug('telling target temperature')
@@ -151,30 +118,30 @@ class NestWorkflow(Workflow):
         temp = temp.strip()
         temp = temp.strip('"')
         temp = temp.strip("'")
-
-        if self.nest.mode == 'range' and len(temp) > 0:
-            temps = temp.split()
-            if len(temps) != 2:
-                return [Item('Waiting for valid input...')]
-            for t in temps:
-                if len(t) == 1 or len(t) > 2:
-                    return [Item('Waiting for valid input...')]
-
         units = self.nest.scale.upper()
 
-        if self.nest.mode == 'range':
-            item = Item(
-                u'Target temperature range is %.1f°%s - '
-                u'%.1f°%s' % (target[0], units, target[1], units))
+        if temp:
+            if self.nest.mode == 'range':
+                temps = temp.split()
+                if len(temps) != 2:
+                    return [Item('Waiting for valid input...')]
+                for t in temps:
+                    if len(t) == 1 or len(t) > 2:
+                        return [Item('Waiting for valid input...')]
+                return [Item(u'Set temperature range to %.1f°%s - %.1f°%s' % (
+                             float(temps[0]), units, float(temps[1]), units),
+                             arg=temp, valid=True)]
+            else:
+                return [Item(u'Set temperature to %.1f°%s' % (float(temp),
+                        units), arg=temp, valid=True)]
         else:
-            item = Item(
-                u'Target temperature: %.1f°%s' % (target, units))
-
-        if len(temp) > 0:
-            # only need to check for empty temp here since we already validated
-            # it above
-            item.valid = True
-            item.arg = temp
+            if self.nest.mode == 'range':
+                item = Item(
+                    u'Target temperature range is %.1f°%s - '
+                    u'%.1f°%s' % (target[0], units, target[1], units))
+            else:
+                item = Item(
+                    u'Target temperature: %.1f°%s' % (target, units))
 
         if self.nest.mode == 'range':
             item.subtitle = (u'Enter a temperature range in °%s to update; '
@@ -207,7 +174,7 @@ class NestWorkflow(Workflow):
         temp = self.nest.temperature
         target = self.nest.target_temperature
         humidity = self.nest.humidity
-        away = 'yes' if self.structure.away else 'no'
+        away = 'yes' if self.nest.structure.away else 'no'
         fan = self.nest.fan
         units = self.nest.scale.upper()
         item = Item(u'Temperature: %.1f°%s' % (temp, units))
@@ -260,7 +227,7 @@ class NestWorkflow(Workflow):
         '''Tell the Nest's "away" status'''
         LOG.debug('telling away')
 
-        if self.structure.away:
+        if self.nest.structure.away:
             msg = "Nest thinks you're away"
             arg = 'off'
         else:
@@ -286,10 +253,10 @@ class NestWorkflow(Workflow):
             else:
                 raise Exception('Invalid input')
 
-            self.structure.away = val
+            self.nest.structure.away = val
             away = val
         else:
-            away = self.structure.away
+            away = self.nest.structure.away
 
         if away:
             self.puts('Away mode is enabled')
@@ -312,7 +279,7 @@ class NestWorkflow(Workflow):
                         thi, tlo))
             return item
 
-        data = self.structure.weather
+        data = self.nest.structure.weather
         conditions = data['now']['conditions'].capitalize()
         temp = to_deg_f(data['now']['current_temperature'])
         humidity = data['now']['current_humidity']

@@ -19,6 +19,7 @@ provides several commands, accessible via `nest [command]`:
   * `status` - show general Nest status
   * `target` - get and set the target temperature or temperature range
   * `weather` - show local weather (according to the Nest servers)
+  * `nest` - choose the currently active Nest (if you have more than one)
 
 Your location (for weather) and your temperature scale preference are read from
 your Nest account.

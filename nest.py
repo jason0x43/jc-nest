@@ -39,6 +39,10 @@ class Nest(object):
         return self._account
 
     @property
+    def structure(self):
+        return self._structure
+
+    @property
     def name(self):
         return self.account.status['shared'][self.id]['name']
 
@@ -77,10 +81,10 @@ class Nest(object):
         return mode.lower()
 
     @mode.setter
-    def set_mode(self, mode):
+    def mode(self, mode):
         mode = mode.upper()
         data = {'device': {self.id: {'current_schedule_mode': mode}}}
-        self._request('POST', 'put', data=data)
+        self.account.request('POST', 'put', data=data)
         self.account.status['device'][self.id][
             'current_schedule_mode'] = mode
 
@@ -89,12 +93,12 @@ class Nest(object):
         return self.account.status['device'][self.id]['fan_mode']
 
     @fan.setter
-    def set_fan(self, mode):
+    def fan(self, mode):
         if mode not in ('auto', 'on'):
             raise Exception('Invalid fan mode "{}". Must be "auto" or '
                             '"on"'.format(mode))
         data = {'device': {self.id: {'fan_mode': mode}}}
-        self._request('POST', 'put', data=data)
+        self.account_request('POST', 'put', data=data)
         self.account.status['device'][self.id]['fan_mode'] = mode
 
     @property
@@ -114,7 +118,7 @@ class Nest(object):
         return temp
 
     @target_temperature.setter
-    def set_target_temperature(self, temp):
+    def target_temperature(self, temp):
         if isinstance(temp, (list, tuple)):
             # temp is (low, high)
             lo_and_hi = [float(t) for t in temp]
@@ -135,8 +139,8 @@ class Nest(object):
                 'target_temperature': temp
             }
 
-        self._request('POST', 'put/shared.{}'.format(self.id),
-                      data=data)
+        self.account.request('POST', 'put/shared.{}'.format(self.id),
+                             data=data)
 
         if isinstance(temp, (list, tuple)):
             self.account.status['shared'][self.id][
@@ -195,7 +199,7 @@ class Structure(object):
         return self.account.status['structure'][self.id]['away']
 
     @away.setter
-    def set_away(self, value):
+    def away(self, value):
         from time import time
         value = bool(value)
         data = {
@@ -203,8 +207,8 @@ class Structure(object):
             'away': value,
             'away_setter': 0
         }
-        self.account._request('POST', 'put/structure.{}'.format(self.id),
-                              data=data)
+        self.account.request('POST', 'put/structure.{}'.format(self.id),
+                             data=data)
         self.account.status['structure'][self.id]['away'] = value
 
 
@@ -224,7 +228,7 @@ class Account(object):
     @property
     def status(self):
         if self._status is None:
-            r = self._request('GET', 'mobile/user.{}'.format(self.user_id))
+            r = self.request('GET', 'mobile/user.{}'.format(self.user_id))
             self._status = r.json()
         return self._status
 
@@ -302,7 +306,7 @@ class Account(object):
 
         return True
 
-    def _request(self, method='GET', path='', data=None):
+    def request(self, method='GET', path='', data=None):
         '''
         GET from or POST to a user's Nest account
 
