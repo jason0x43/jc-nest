@@ -267,6 +267,7 @@ class Account(object):
     @property
     def has_session(self):
         if not exists(self._session_file):
+            LOG.debug('no session file')
             return False
 
         try:
@@ -275,9 +276,7 @@ class Account(object):
                 expiry = datetime.strptime(self.session['expires_in'],
                                            '%a, %d-%b-%Y %H:%M:%S GMT')
                 if datetime.utcnow() <= expiry:
-                    cookies = self._session['cookies']
-                    if len(cookies) > 0:
-                        return True
+                    return True
         except Exception:
             pass
 
@@ -292,14 +291,12 @@ class Account(object):
             makedirs(cache_dir)
 
         # authenticate with Nest and save the returned session data
-        from requests.utils import dict_from_cookiejar
         res = requests.post(login_url, {'username': email,
                                         'password': password})
         if res.status_code != 200:
             return False
 
         session = res.json()
-        session['cookies'] = dict_from_cookiejar(res.cookies)
         with open(self._session_file, 'wt') as sfile:
             json.dump(session, sfile, indent=2)
         self._session = session
@@ -316,7 +313,7 @@ class Account(object):
         if not self.has_session:
             raise NotAuthenticated('No session -- login first')
 
-        from requests.utils import cookiejar_from_dict
+        #from requests.utils import cookiejar_from_dict
         self._requestor = requests.Session()
         self._requestor.headers.update({
             'User-Agent': user_agent,
@@ -327,9 +324,6 @@ class Account(object):
             'Connection': 'keep-alive',
             'Accept': '*/*'
         })
-
-        self._requestor.cookies = cookiejar_from_dict(
-            self._session['cookies'])
 
         base_url = '{}/v2'.format(self.session['urls']['transport_url'])
         url = '{}/{}'.format(base_url, path)
