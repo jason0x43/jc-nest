@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from os.path import exists, expanduser, dirname
-from os import makedirs
+from os import makedirs, remove
 import json
 import requests
 import logging
@@ -13,7 +13,7 @@ LOG = logging.getLogger(__name__)
 
 default_cache_dir = expanduser('~/.nest')
 login_url = 'https://home.nest.com/user/login'
-user_agent = 'Nest/1.1.0.10 CFNetwork/548.0.4'
+user_agent = 'Nest/2.1.3 CFNetwork/548.0.4'
 
 
 class FailedRequest(Exception):
@@ -29,8 +29,8 @@ class NotAuthenticated(Exception):
 
 class Nest(object):
     def __init__(self, id, structure):
-        '''Initialize this Nest'''
-        self._id = id
+        '''Initialize this Nest.'''
+        self._id = str(id)
         self._structure = structure
         self._account = structure.account
 
@@ -64,8 +64,7 @@ class Nest(object):
 
     @property
     def temperature(self):
-        temp = self.account.status['shared'][self.id][
-            'current_temperature']
+        temp = self.account.status['shared'][self.id]['current_temperature']
         if self.scale == 'F':
             temp = (temp * 1.8) + 32
         return temp
@@ -85,8 +84,7 @@ class Nest(object):
         mode = mode.upper()
         data = {'device': {self.id: {'current_schedule_mode': mode}}}
         self.account.request('POST', 'put', data=data)
-        self.account.status['device'][self.id][
-            'current_schedule_mode'] = mode
+        self.account.status['device'][self.id]['current_schedule_mode'] = mode
 
     @property
     def fan(self):
@@ -98,21 +96,19 @@ class Nest(object):
             raise Exception('Invalid fan mode "{}". Must be "auto" or '
                             '"on"'.format(mode))
         data = {'device': {self.id: {'fan_mode': mode}}}
-        self.account_request('POST', 'put', data=data)
+        self.account.request('POST', 'put', data=data)
         self.account.status['device'][self.id]['fan_mode'] = mode
 
     @property
     def target_temperature(self):
+        shared = self.account.status['shared'][self.id]
         if self.mode == 'range':
-            temp = [self.account.status['shared'][self.id][
-                    'target_temperature_low'],
-                    self.account.status['shared'][self.id][
-                    'target_temperature_high']]
+            temp = [shared['target_temperature_low'],
+                    shared['target_temperature_high']]
             if self.scale == 'F':
                 temp = [(t * 1.8) + 32 for t in temp]
         else:
-            temp = self.account.status['shared'][self.id][
-                'target_temperature']
+            temp = shared['target_temperature']
             if self.scale == 'F':
                 temp = (temp * 1.8) + 32
         return temp
@@ -142,19 +138,17 @@ class Nest(object):
         self.account.request('POST', 'put/shared.{}'.format(self.id),
                              data=data)
 
+        shared = self.account.status['shared'][self.id]
         if isinstance(temp, (list, tuple)):
-            self.account.status['shared'][self.id][
-                'target_temperature_low'] = lo_and_hi[0]
-            self.account.status['shared'][self.id][
-                'target_temperature_high'] = lo_and_hi[1]
+            shared['target_temperature_low'] = lo_and_hi[0]
+            shared['target_temperature_high'] = lo_and_hi[1]
         else:
-            self.account.status['shared'][self.id][
-                'target_temperature'] = temp
+            shared['target_temperature'] = temp
 
 
 class Structure(object):
     def __init__(self, structure_id, account):
-        '''Initialize this structure'''
+        '''Initialize this structure.'''
         self._account = account
         self._id = structure_id
         self._nests = None
@@ -175,8 +169,7 @@ class Structure(object):
     def nests(self):
         if self._nests is None:
             nests = {}
-            for dev in self.account.status['structure'][self.id][
-                    'devices']:
+            for dev in self.account.status['structure'][self.id]['devices']:
                 id = dev.split('.')[1]
                 nests[id] = Nest(id, self)
             self._nests = nests
@@ -214,7 +207,7 @@ class Structure(object):
 
 class Account(object):
     def __init__(self, cache_dir=None):
-        '''Initialize this nest interface'''
+        '''Initialize this nest interface.'''
 
         if cache_dir is None:
             cache_dir = default_cache_dir
@@ -236,9 +229,9 @@ class Account(object):
     def structures(self):
         if self._structures is None:
             structures = {}
-            LOG.debug('structs: %s',
-                      self.status['user'][self.user_id]['structures'])
-            for struct in self.status['user'][self.user_id]['structures']:
+            user_structs = self.status['user'][self.user_id]['structures']
+            LOG.debug('structs: %s', user_structs)
+            for struct in user_structs:
                 id = struct.split('.')[1]
                 structures[id] = Structure(id, self)
             self._structures = structures
@@ -260,16 +253,10 @@ class Account(object):
 
     @property
     def session(self):
-        if self._session is None:
-            raise NotAuthenticated('No session available -- login first')
         return self._session
 
     @property
     def has_session(self):
-        if not exists(self._session_file):
-            LOG.debug('no session file')
-            return False
-
         try:
             with open(self._session_file, 'rt') as sfile:
                 self._session = json.load(sfile)
@@ -278,12 +265,16 @@ class Account(object):
                 if datetime.utcnow() <= expiry:
                     return True
         except Exception:
-            pass
+            LOG.exception('missing or corrupt session file')
 
         return False
 
+    def clear_session(self):
+        '''Delete the session file'''
+        remove(self._session_file)
+
     def login(self, email, password):
-        '''Login to the user's Nest account'''
+        '''Login to the user's Nest account.'''
 
         # make the cache dir if it doesn't exist
         cache_dir = dirname(self._session_file)
@@ -304,8 +295,7 @@ class Account(object):
         return True
 
     def request(self, method='GET', path='', data=None):
-        '''
-        GET from or POST to a user's Nest account
+        '''GET from or POST to a user's Nest account.
 
         This function requires a valid session to exist.
         '''
@@ -329,6 +319,7 @@ class Account(object):
         url = '{}/{}'.format(base_url, path)
 
         if method == 'GET':
+            LOG.info('GETting %s', url)
             # don't put headers it a status request
             if not url.endswith('.json'):
                 r = self._requestor.get(url)
@@ -336,10 +327,9 @@ class Account(object):
                 r = requests.get(url)
         elif method == 'POST':
             if not isinstance(data, (str, unicode)):
+                # convert data dicts to JSON strings
                 data = json.dumps(data)
             r = self._requestor.post(url, data=data)
-        elif method == 'DELETE':
-            r = self._requestor.delete(url)
         else:
             raise Exception('Invalid method "{}"'.format(method))
 

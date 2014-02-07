@@ -2,11 +2,6 @@
 # coding=UTF-8
 
 
-import jcalfred
-if float(jcalfred.__version__) < 20130830.0:
-    raise Exception('This workflow requires a newer version of jcalfred')
-
-
 import nest as nestlib
 import logging
 from jcalfred import Workflow, Item, Keychain
@@ -126,6 +121,11 @@ class NestWorkflow(Workflow):
         self.config['nest'] = nest_id
         self.puts(u'Set active Nest to "{0}" ({1})'.format(self.nest.name,
                                                            nest_id))
+
+    def do_clear(self, ignored):
+        '''Clear your nest session'''
+        self.nest.account.clear_session()
+        self.puts(u'Session cleared')
 
     def tell_target(self, temp):
         '''Tell the target temperature'''
@@ -292,8 +292,7 @@ class NestWorkflow(Workflow):
             thi = info['high_temperature']
             tlo = info['low_temperature']
             item = Item(u'%s: %s' % (title, tcond),
-                        subtitle=u'High: %.1f°F,  Low: %.1f°F' % (
-                        thi, tlo))
+                        subtitle=u'High: %.1f°F,  Low: %.1f°F' % (thi, tlo))
             return item
 
         data = self.nest.structure.weather

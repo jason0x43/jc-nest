@@ -72,6 +72,28 @@
 				<string></string>
 			</dict>
 		</array>
+		<key>79607984-EF5E-4258-90AA-803C8EFB0CA2</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>95544FFE-06C0-46D4-B81A-383C77D36A21</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>95544FFE-06C0-46D4-B81A-383C77D36A21</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>9C5DEFD5-3025-4222-87AA-4BB2D9B8270A</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
 		<key>B15BB9F9-1A8A-4F95-80CD-9C6A7179DDD3</key>
 		<array>
 			<dict>
@@ -504,6 +526,45 @@ NestWorkflow().do('debug')</string>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>keyword</key>
+				<string>nest clear</string>
+				<key>subtext</key>
+				<string>Clear your current session (can help with connection issues)</string>
+				<key>text</key>
+				<string>clear</string>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.keyword</string>
+			<key>uid</key>
+			<string>79607984-EF5E-4258-90AA-803C8EFB0CA2</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>script</key>
+				<string>from alfred_nest import NestWorkflow
+NestWorkflow().do('clear')</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>95544FFE-06C0-46D4-B81A-383C77D36A21</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string></string>
@@ -543,6 +604,16 @@ NestWorkflow().do('debug')</string>
 		<dict>
 			<key>ypos</key>
 			<real>250</real>
+		</dict>
+		<key>79607984-EF5E-4258-90AA-803C8EFB0CA2</key>
+		<dict>
+			<key>ypos</key>
+			<real>970</real>
+		</dict>
+		<key>95544FFE-06C0-46D4-B81A-383C77D36A21</key>
+		<dict>
+			<key>ypos</key>
+			<real>970</real>
 		</dict>
 		<key>9C5DEFD5-3025-4222-87AA-4BB2D9B8270A</key>
 		<dict>
