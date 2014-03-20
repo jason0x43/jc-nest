@@ -192,9 +192,9 @@ class Structure(object):
 
     @property
     def weather(self):
-        r = requests.get('https://home.nest.com/api/0.1/weather/forecast/'
-                         '{}'.format(self.location))
-        return r.json()
+        url = '{}{}'.format(self.account.session['urls']['weather_url'],
+                            self.location)
+        return requests.get(url).json()[self.location]
 
     # away ###############################
 

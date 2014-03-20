@@ -283,27 +283,28 @@ class NestWorkflow(Workflow):
     def tell_weather(self, ignored):
         '''Tell the current weather and a short forecast'''
         LOG.debug('telling weather')
-
-        def to_deg_f(temp):
-            return (temp / 1.8) + 32
+        units = self.nest.scale.lower()
 
         def new_forecast(title, info):
-            tcond = info['conditions'].capitalize()
-            thi = info['high_temperature']
-            tlo = info['low_temperature']
+            tcond = info['condition'].capitalize()
+            thi = info['temp_high_' + units]
+            tlo = info['temp_low_' + units]
             item = Item(u'%s: %s' % (title, tcond),
-                        subtitle=u'High: %.1f°F,  Low: %.1f°F' % (thi, tlo))
+                        subtitle=u'High: {0:.1f}°{1},  '
+                                 u'Low: {2:.1f}°{1}'.format(
+                                     thi, units.upper(), tlo))
             return item
 
         data = self.nest.structure.weather
-        conditions = data['now']['conditions'].capitalize()
-        temp = to_deg_f(data['now']['current_temperature'])
-        humidity = data['now']['current_humidity']
+        conditions = data['current']['condition'].capitalize()
+        temp = data['current']['temp_' + units]
+        humidity = data['current']['humidity']
 
         items = []
 
         item = Item(u'Now: %s' % conditions)
-        item.subtitle = u'%.1f°F,  %.1f%% humidity' % (temp, humidity)
+        item.subtitle = u'{0:.1f}°{1},  {2:.0f}% humidity'.format(
+                        temp, units.upper(), humidity)
         items.append(item)
 
         items.append(new_forecast('Today', data['forecast']['daily'][0]))
