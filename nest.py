@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
-from datetime import datetime
-from os.path import exists, expanduser, dirname
-from os import makedirs, remove
 import json
 import requests
 import logging
+import ssl
+from datetime import datetime
+from os.path import exists, expanduser, dirname
+from os import makedirs, remove
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.poolmanager import PoolManager
 
 
 LOG = logging.getLogger(__name__)
@@ -14,6 +17,14 @@ LOG = logging.getLogger(__name__)
 default_cache_dir = expanduser('~/.nest')
 login_url = 'https://home.nest.com/user/login'
 user_agent = 'Nest/2.1.3 CFNetwork/548.0.4'
+
+
+class TlsAdapter(HTTPAdapter):
+    def init_poolmanager(self, connections, maxsize, block=False):
+        self.poolmanager = PoolManager(num_pools=connections,
+                                       maxsize=maxsize,
+                                       block=block,
+                                       ssl_version=ssl.PROTOCOL_TLSv1)
 
 
 class FailedRequest(Exception):
@@ -305,6 +316,7 @@ class Account(object):
 
         #from requests.utils import cookiejar_from_dict
         self._requestor = requests.Session()
+        self._requestor.mount('https://', TlsAdapter())
         self._requestor.headers.update({
             'User-Agent': user_agent,
             'Authorization': 'Basic ' + self.session['access_token'],
