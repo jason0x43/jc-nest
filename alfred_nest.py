@@ -110,7 +110,8 @@ class NestWorkflow(Workflow):
 
         if len(query.strip()) > 0:
             q = query.strip().lower()
-            items = self.fuzzy_match(q, items, key=lambda i: i.title.lower())
+            items = self.fuzzy_match_list(q, items,
+                                          key=lambda i: i.title.lower())
 
         return items
 
@@ -325,7 +326,8 @@ class NestWorkflow(Workflow):
 
         if len(query.strip()) > 0:
             q = query.strip().lower()
-            items = self.fuzzy_match(q, items, key=lambda i: i.title.lower())
+            items = self.fuzzy_match_list(q, items,
+                                          key=lambda i: i.title.lower())
 
         return items
 
