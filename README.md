@@ -1,6 +1,8 @@
 [Alfred 2][alfred] Workflow for controlling a [Nest][nest]
 ==========================================================
 
+**This workflow is no longer maintained.** It uses the unofficial Nest API and may break at any time. I have a [new Nest workflow](https://github.com/jason0x43/alfred-nest) that uses the official API, so you may want to try that one.
+
 <p align="center">
 <img alt="Screenshot" src="http://dl.dropbox.com/s/znojcyqezs3amcq/jc-nest_screenshot.png" />
 </p>
